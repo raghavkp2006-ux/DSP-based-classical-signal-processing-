@@ -214,22 +214,27 @@ def de_emphasis(audio, coeff=0.97):
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 8: Voice-band EQ
 # ─────────────────────────────────────────────────────────────────────────
-def apply_eq(audio, Fs):
+def apply_eq(audio, Fs, eq_gain=1.0):
+    """Voice-band EQ with warmth/presence/crispness boosts.
+    eq_gain=0.0 bypasses entirely; 1.0 is full strength.
+    """
+    if eq_gain <= 0.0:
+        return audio.copy()
     out = audio.copy()
 
     f1_low, f1_high = 300 / (Fs / 2), 500 / (Fs / 2)
     if f1_high < 1.0:
         b1 = signal.firwin(65, [f1_low, f1_high], pass_zero=False)
-        out = out + 0.6 * signal.lfilter(b1, 1, out)
+        out = out + eq_gain * 0.6 * signal.lfilter(b1, 1, out)
 
     f2_low, f2_high = 1000 / (Fs / 2), min(2500 / (Fs / 2), 0.99)
     b2 = signal.firwin(65, [f2_low, f2_high], pass_zero=False)
-    out = out + 0.9 * signal.lfilter(b2, 1, out)
+    out = out + eq_gain * 0.9 * signal.lfilter(b2, 1, out)
 
     f3_low, f3_high = 2500 / (Fs / 2), min(4000 / (Fs / 2), 0.99)
     if f3_low < 0.99 and f3_low < f3_high:
         b3 = signal.firwin(65, [f3_low, f3_high], pass_zero=False)
-        out = out + 0.4 * signal.lfilter(b3, 1, out)
+        out = out + eq_gain * 0.4 * signal.lfilter(b3, 1, out)
 
     b_hp = signal.firwin(129, 80 / (Fs / 2), pass_zero=False)
     out = signal.lfilter(b_hp, 1, out)
@@ -242,7 +247,10 @@ def apply_eq(audio, Fs):
 # Stage 9: Dynamic range compression
 # ─────────────────────────────────────────────────────────────────────────
 def dynamic_range_compress(audio, Fs, threshold_db=-24.0, ratio=2.5,
-                            attack_ms=10.0, release_ms=120.0, makeup_gain=20.0):
+                            attack_ms=10.0, release_ms=120.0, makeup_gain_db=20.0):
+    """Dynamic range compression. ratio=1.0 + makeup_gain_db=0 = pass-through."""
+    if ratio <= 1.0 and makeup_gain_db == 0.0:
+        return audio.copy()  # genuine pass-through, no gain at all
     attack_coeff = np.exp(-1.0 / (attack_ms * Fs / 1000.0))
     release_coeff = np.exp(-1.0 / (release_ms * Fs / 1000.0))
     threshold_lin = 10 ** (threshold_db / 20.0)
@@ -266,7 +274,7 @@ def dynamic_range_compress(audio, Fs, threshold_db=-24.0, ratio=2.5,
 
         out[n] = audio[n] * gain_smooth
 
-    out *= 10 ** (makeup_gain / 20.0)
+    out *= 10 ** (makeup_gain_db / 20.0)
     return out
 
 
@@ -274,16 +282,25 @@ def dynamic_range_compress(audio, Fs, threshold_db=-24.0, ratio=2.5,
 # Stage 10: Normalize + limiter
 # ─────────────────────────────────────────────────────────────────────────
 def normalize_and_limit(audio, audio_raw, target_level=0.99, clip_thresh=0.98):
+    """Peak-normalise then RMS-match to input. Returns (audio, limiter_clips_pct).
+    limiter_clips_pct = fraction of samples that hit the limiter ceiling.
+    """
     out = audio / (np.max(np.abs(audio)) + 1e-10) * target_level
-    out = out / np.maximum(1.0, np.abs(out) / clip_thresh)
+    pre_limit = np.abs(out)
+    out = out / np.maximum(1.0, pre_limit / clip_thresh)
+    limiter_clips = int(np.sum(pre_limit > clip_thresh))
 
     original_rms = np.sqrt(np.mean(audio_raw ** 2))
     current_rms = np.sqrt(np.mean(out ** 2))
     if current_rms > 0:
         rms_gain = min(original_rms / current_rms, 10.0)
         out = out * rms_gain
-        out = out / (np.max(np.abs(out)) + 1e-10) * target_level
-    return out
+        pre_limit2 = np.abs(out)
+        out = out / (np.max(pre_limit2) + 1e-10) * target_level
+        limiter_clips += int(np.sum(pre_limit2 > clip_thresh))
+
+    clips_pct = 100.0 * limiter_clips / max(1, len(audio))
+    return out, clips_pct
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -294,20 +311,49 @@ def estimate_snr(audio, fp, is_speech):
     Segmental SNR in dB: mean speech-frame energy vs. mean noise-frame
     energy, using the VAD's own frame boundaries so it stays consistent
     with the labels the rest of the pipeline already computed.
+
+    Includes guard rails against extreme values:
+    - Requires a minimum number of noise and speech frames; otherwise
+      falls back to a windowed energy-percentile estimate.
+    - Floors noise and speech power to prevent divide-by-zero or blowing
+      up the log ratio.
+    - Sanity-clips the final SNR to [-30.0, 40.0] dB.
     """
     frame_len, hop_len, num_frames = fp["frame_len"], fp["hop_len"], fp["num_frames"]
-    speech_energies, noise_energies = [], []
+    all_energies, speech_energies, noise_energies = [], [], []
 
     for i in range(num_frames):
         idx = i * hop_len
         frame = audio[idx: idx + frame_len]
-        e = np.sum(frame ** 2) / max(1, frame_len)
-        (speech_energies if is_speech[i] else noise_energies).append(e)
+        if len(frame) == 0:
+            continue
+        e = float(np.sum(frame ** 2) / max(1, len(frame)))
+        all_energies.append(e)
+        if i < len(is_speech) and is_speech[i]:
+            speech_energies.append(e)
+        else:
+            noise_energies.append(e)
 
-    speech_power = np.mean(speech_energies) if speech_energies else 1e-10
-    noise_power = np.mean(noise_energies) if noise_energies else 1e-10
-    snr_db = 10 * np.log10((speech_power + 1e-12) / (noise_power + 1e-12))
-    return float(snr_db)
+    min_frames = max(3, int(0.03 * num_frames))
+    if len(noise_energies) >= min_frames and len(speech_energies) >= min_frames:
+        speech_power = float(np.mean(speech_energies))
+        noise_power = float(np.mean(noise_energies))
+    else:
+        # Fall back to windowed RMS/percentile estimate
+        sorted_e = np.sort(all_energies) if all_energies else np.array([1e-10])
+        n_pts = len(sorted_e)
+        k_low = max(1, int(0.15 * n_pts))
+        k_high = max(1, int(0.25 * n_pts))
+        noise_power = float(np.mean(sorted_e[:k_low]))
+        speech_power = float(np.mean(sorted_e[-k_high:]))
+
+    total_power = float(np.mean(audio ** 2)) if len(audio) > 0 else 1e-10
+    floor_power = max(1e-8, total_power * 1e-4)
+    speech_power = max(speech_power, floor_power)
+    noise_power = max(noise_power, floor_power)
+
+    snr_db = 10.0 * np.log10(speech_power / noise_power)
+    return float(np.clip(snr_db, -30.0, 40.0))
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -317,7 +363,7 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
                  pre_emph_coeff=0.97, alpha=1.2, beta=0.10, gain_smooth=0.7,
                  clean_reference=None, feedback_enabled=True,
                  feedback_stoi_threshold=0.80, feedback_snr_threshold=3.0,
-                 use_stt_feedback=False):
+                 use_stt_feedback=False, eval_is_speech=None, eval_snr_before=None):
     """
     Runs all 10 stages end to end and returns a metrics dict plus the
     intermediate arrays the web UI / evaluation scripts need. Writes the
@@ -333,9 +379,29 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
         raise ValueError("Audio is too short; upload at least 30 ms of audio.")
     stage_log.append({"stage": "Load & Normalize", "detail": f"{N/Fs:.2f}s @ {Fs} Hz"})
 
-    defaults = {"pre_emph_coeff": pre_emph_coeff, "alpha": alpha, "beta": beta,
-                "gain_smooth": gain_smooth, "use_spectral_subtraction": True,
-                "use_ml_postfilter": False, "vad_hangover_frames": 0}
+    fp = frame_params(N, Fs)
+
+    # Compute snr_before ONCE using a fixed VAD pass (vad_hangover_frames=0)
+    # before any agent or config logic, ensuring identical before-measurements
+    # and consistent speech/noise masks across different configurations.
+    if eval_is_speech is None or eval_snr_before is None:
+        eval_preemph = pre_emphasis(audio_raw, 0.97)
+        fixed_speech, _, _ = voice_activity_detection(eval_preemph, fp, hangover_frames=0)
+        if eval_is_speech is None:
+            eval_is_speech = fixed_speech
+        if eval_snr_before is None:
+            eval_snr_before = estimate_snr(audio_raw, fp, eval_is_speech)
+
+    defaults = {
+        "pre_emph_coeff": pre_emph_coeff, "alpha": alpha, "beta": beta,
+        "gain_smooth": gain_smooth, "use_spectral_subtraction": True,
+        "use_ml_postfilter": False, "vad_hangover_frames": 0,
+        # EQ / compression controls (agent-settable)
+        "use_eq": True,        # False = skip EQ entirely
+        "eq_gain": 1.0,        # 0.0–1.0 attenuation of EQ boost amounts
+        "compression_ratio": 2.5,
+        "compression_makeup_db": 20.0,
+    }
     analysis, agent_decision = {}, None
     if use_agent:
         from agent_analyzer import analyze_audio
@@ -355,7 +421,6 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
     audio_preemph = pre_emphasis(audio_raw, defaults["pre_emph_coeff"])
     stage_log.append({"stage": "Pre-emphasis", "detail": f"coeff={defaults['pre_emph_coeff']}"})
 
-    fp = frame_params(N, Fs)
     stage_log.append({"stage": "Framing", "detail":
                        f"{fp['num_frames']} frames, {fp['frame_len']} samples/frame"})
 
@@ -379,27 +444,35 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
     audio_deemph = de_emphasis(output_spec, defaults["pre_emph_coeff"])
     stage_log.append({"stage": "De-emphasis", "detail": "inverse pre-emphasis"})
 
-    audio_eq = apply_eq(audio_deemph, Fs)
-    stage_log.append({"stage": "Voice-band EQ", "detail": "warmth + presence + crispness"})
+    _eq_gain = defaults["eq_gain"] if defaults["use_eq"] else 0.0
+    audio_eq = apply_eq(audio_deemph, Fs, eq_gain=_eq_gain)
+    stage_log.append({"stage": "Voice-band EQ",
+                       "detail": f"eq_gain={_eq_gain:.2f}" + (" (bypassed)" if _eq_gain <= 0.0 else "")})
 
-    audio_comp = dynamic_range_compress(audio_eq, Fs)
-    stage_log.append({"stage": "Dynamic Range Compression", "detail": "2.5:1, +20dB makeup"})
+    _ratio = defaults["compression_ratio"]
+    _makeup = defaults["compression_makeup_db"]
+    audio_comp = dynamic_range_compress(audio_eq, Fs, ratio=_ratio, makeup_gain_db=_makeup)
+    stage_log.append({"stage": "Dynamic Range Compression",
+                       "detail": f"{_ratio:.1f}:1, +{_makeup:.0f}dB makeup"
+                                  + (" (pass-through)" if _ratio <= 1.0 and _makeup == 0.0 else "")})
 
-    audio_final = normalize_and_limit(audio_comp, audio_raw)
-    stage_log.append({"stage": "Normalize & Limit", "detail": "peak + RMS matched"})
+    audio_final, limiter_clips_pct = normalize_and_limit(audio_comp, audio_raw)
+    stage_log.append({"stage": "Normalize & Limit",
+                       "detail": f"peak + RMS matched; {limiter_clips_pct:.2f}% samples hit limiter"})
 
     ml_postfilter_applied = False
     if defaults["use_ml_postfilter"]:
         try:
             from ml_postfilter import apply_ml_denoise
-            audio_final = normalize_and_limit(apply_ml_denoise(audio_final, Fs), audio_raw)
+            audio_final, _ml_clips = normalize_and_limit(apply_ml_denoise(audio_final, Fs), audio_raw)
+            limiter_clips_pct += _ml_clips
             ml_postfilter_applied = True
             stage_log.append({"stage": "ML Post-filter", "detail": "adaptive spectral gating applied"})
         except RuntimeError as exc:
             stage_log.append({"stage": "ML Post-filter", "detail": f"skipped: {exc}"})
 
-    snr_before = estimate_snr(audio_raw, fp, is_speech)
-    snr_after = estimate_snr(audio_final, fp, is_speech)
+    snr_before = eval_snr_before
+    snr_after = estimate_snr(audio_final, fp, eval_is_speech)
     stage_log.append({"stage": "SNR Estimation",
                        "detail": f"{snr_before:.1f} dB -> {snr_after:.1f} dB"})
 
@@ -418,12 +491,14 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
         "rms_gain_db": round(rms_gain_db, 2),
         "in_peak": round(float(np.max(np.abs(audio_raw))), 4),
         "out_peak": round(float(np.max(np.abs(audio_final))), 4),
+        "limiter_clips_pct": round(limiter_clips_pct, 3),
         "ml_postfilter_used": ml_postfilter_applied,
     }
 
     result = {
         "audio_raw": audio_raw, "audio_final": audio_final, "Fs": Fs, "N": N,
         "fp": fp, "is_speech": is_speech, "frame_energy": frame_energy,
+        "eval_is_speech": eval_is_speech, "eval_snr_before": eval_snr_before,
         "metrics": metrics, "stage_log": stage_log,
         "analysis": analysis, "agent_decision": agent_decision, "params": defaults,
     }
@@ -506,6 +581,7 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
         retry = run_pipeline(
             input_filepath, output_filepath, params=next_params, use_agent=False,
             clean_reference=clean_reference, feedback_enabled=False,
+            eval_is_speech=eval_is_speech, eval_snr_before=eval_snr_before,
         )
 
         retry_scores = None

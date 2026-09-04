@@ -11,12 +11,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import soundfile as sf
 
-from dsp_pipeline import run_pipeline
+from dsp_pipeline import (estimate_snr, frame_params, pre_emphasis,
+                          run_pipeline, voice_activity_detection)
 from self_eval import evaluate
 
+ALL_CONFIGS = ["unprocessed", "dsp_only", "dsp_ml", "agent"]
 CONFIGS = {
-    "dsp_only": {"use_agent": False, "params": {"use_ml_postfilter": False}},
-    "dsp_ml": {"use_agent": False, "params": {"use_ml_postfilter": True}},
+    "dsp_only": {"use_agent": False, "params": {
+        "use_ml_postfilter": False,
+        "use_eq": True, "eq_gain": 1.0,
+        "compression_ratio": 2.0, "compression_makeup_db": 10.0,
+    }},
+    "dsp_ml": {"use_agent": False, "params": {
+        "use_ml_postfilter": True,
+        "use_eq": True, "eq_gain": 1.0,
+        "compression_ratio": 2.0, "compression_makeup_db": 10.0,
+    }},
     "agent": {"use_agent": True, "params": None},
 }
 
@@ -38,7 +48,8 @@ def mean_or_blank(values):
 def write_summary(rows, output: Path):
     fields = ("config", "snr_db_condition", "runs", "mean_snr_improvement_db", "mean_stoi", "mean_pesq")
     summary = []
-    for config in CONFIGS:
+    configs_to_summarize = [c for c in ALL_CONFIGS if any(r["config"] == c for r in rows)]
+    for config in configs_to_summarize:
         for condition in sorted({int(row["snr_db_condition"]) for row in rows}):
             group = [r for r in rows if r["config"] == config and int(r["snr_db_condition"]) == condition]
             summary.append({"config": config, "snr_db_condition": condition, "runs": len(group),
@@ -60,10 +71,11 @@ def plot_metric(summary, metric, title, output: Path):
     labels = [r["config"].replace("_", " + ") for r in rows]
     values = [float(r[metric]) if r[metric] != "" else 0.0 for r in rows]
     plt.style.use("dark_background")
-    fig, ax = plt.subplots(figsize=(7, 4), facecolor="#0a0e14")
+    fig, ax = plt.subplots(figsize=(7.5, 4.2), facecolor="#0a0e14")
     ax.set_facecolor("#0f1520")
-    colors = ["#8a97a8", "#ffb454", "#33e1d6"]
-    bars = ax.bar(labels, values, color=colors, width=.58)
+    palette = ["#5c6773", "#8a97a8", "#ffb454", "#33e1d6"]
+    colors = palette[:len(rows)] if len(rows) <= len(palette) else plt.cm.tab10(np.linspace(0, 1, len(rows)))
+    bars = ax.bar(labels, values, color=colors, width=.55)
     ax.bar_label(bars, fmt="%.2f", padding=4, color="#e7ecf3")
     ax.set_title(title, color="#e7ecf3", fontweight="bold")
     ax.set_ylabel("dB" if "snr" in metric else "Score")
@@ -86,12 +98,31 @@ def main():
     rows = []
     for index, item in enumerate(metadata, 1):
         clean, sr = sf.read(item["clean_path"], dtype="float32")
+        noisy, _ = sf.read(item["noisy_path"], dtype="float32")
         print(f"[{index}/{len(metadata)}] {item['file_id']} {item['noise_type']} {item['snr_db']} dB", flush=True)
+
+        # 1. Compute fixed evaluation VAD and snr_before ONCE for this noisy recording
+        fp = frame_params(len(noisy), sr)
+        eval_preemph = pre_emphasis(noisy, 0.97)
+        eval_is_speech, _, _ = voice_activity_detection(eval_preemph, fp, hangover_frames=0)
+        eval_snr_before = estimate_snr(noisy, fp, eval_is_speech)
+
+        # 2. Raw noisy baseline (unprocessed)
+        noisy_scores = evaluate(clean, noisy, sr)
+        noisy_stt = transcript_proxy(item["clean_path"], item["noisy_path"]) if args.use_stt else None
+        rows.append({"file_id": item["file_id"], "noise_type": item["noise_type"],
+                     "snr_db_condition": item["snr_db"], "config": "unprocessed",
+                     "snr_before_db": round(eval_snr_before, 2), "snr_after_db": round(eval_snr_before, 2),
+                     "snr_improvement_db": 0.0, "stoi": noisy_scores.get("stoi"),
+                     "pesq": noisy_scores.get("pesq"), "transcript_delta": noisy_stt})
+
+        # 3. Processed configurations
         for config, settings in CONFIGS.items():
             enhanced_path = audio_dir / f"{item['file_id']}_{item['noise_type']}_{item['snr_db']}dB_{config}.wav"
             result = run_pipeline(item["noisy_path"], enhanced_path, params=settings["params"],
                                   use_agent=settings["use_agent"], clean_reference=clean,
-                                  feedback_enabled=False)
+                                  feedback_enabled=False,
+                                  eval_is_speech=eval_is_speech, eval_snr_before=eval_snr_before)
             scores = evaluate(clean, result["audio_final"], sr)
             transcript_delta = transcript_proxy(item["clean_path"], str(enhanced_path)) if args.use_stt else None
             metrics = result["metrics"]

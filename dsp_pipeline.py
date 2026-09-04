@@ -314,7 +314,10 @@ def estimate_snr(audio, fp, is_speech):
 # Orchestrator
 # ─────────────────────────────────────────────────────────────────────────
 def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
-                 pre_emph_coeff=0.97, alpha=1.2, beta=0.10, gain_smooth=0.7):
+                 pre_emph_coeff=0.97, alpha=1.2, beta=0.10, gain_smooth=0.7,
+                 clean_reference=None, feedback_enabled=True,
+                 feedback_stoi_threshold=0.80, feedback_snr_threshold=3.0,
+                 use_stt_feedback=False):
     """
     Runs all 10 stages end to end and returns a metrics dict plus the
     intermediate arrays the web UI / evaluation scripts need. Writes the
@@ -418,9 +421,134 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
         "ml_postfilter_used": ml_postfilter_applied,
     }
 
-    return {
+    result = {
         "audio_raw": audio_raw, "audio_final": audio_final, "Fs": Fs, "N": N,
         "fp": fp, "is_speech": is_speech, "frame_energy": frame_energy,
         "metrics": metrics, "stage_log": stage_log,
         "analysis": analysis, "agent_decision": agent_decision, "params": defaults,
     }
+    if not feedback_enabled:
+        return result
+
+    # ── Task 3: Self-Evaluation Feedback Loop ────────────────────────────
+    reference_scores = None
+    quality_name = "snr_improvement_db"
+    quality_value = metrics["snr_improvement_db"]
+    threshold = feedback_snr_threshold
+
+    if clean_reference is not None:
+        from self_eval import evaluate
+        reference_scores = evaluate(clean_reference, audio_final, Fs)
+        if reference_scores.get("stoi") is not None:
+            quality_name = "stoi"
+            quality_value = reference_scores["stoi"]
+            threshold = feedback_stoi_threshold
+
+    quality_failed = quality_value < threshold
+    stt_word_loss_detected = False
+
+    if use_stt_feedback and clean_reference is None:
+        try:
+            from stt_module import transcribe
+            raw_t = transcribe(input_filepath)
+            enh_t = transcribe(output_filepath)
+            if raw_t.get("available") and enh_t.get("available"):
+                raw_words = len(raw_t.get("text", "").split())
+                enh_words = len(enh_t.get("text", "").split())
+                if raw_words > 3 and enh_words < int(raw_words * 0.75):
+                    stt_word_loss_detected = True
+                    quality_failed = True
+        except Exception:
+            pass
+
+    current_mode = (agent_decision or {}).get("mode", "Manual")
+    attempt = {
+        "mode": current_mode,
+        "quality_metric": quality_name,
+        "quality_value": quality_value,
+        "metrics": metrics,
+        "reference_scores": reference_scores,
+    }
+
+    feedback = {
+        "corrected": False,
+        "kept": "initial",
+        "initial_mode": current_mode,
+        "retry_mode": None,
+        "quality_metric": quality_name,
+        "initial_quality": quality_value,
+        "retry_quality": None,
+        "threshold": threshold,
+        "attempts": [attempt],
+        "reason": f"{quality_name}={quality_value} (threshold {threshold})"
+                  + (" [STT word loss]" if stt_word_loss_detected else ""),
+    }
+
+    # Tier escalation: Light touch -> Classical DSP -> Full adaptive
+    if quality_failed and current_mode != "Full adaptive":
+        if current_mode == "Light touch":
+            next_mode = "Classical DSP"
+            next_params = {
+                "pre_emph_coeff": defaults.get("pre_emph_coeff", 0.97),
+                "alpha": 1.2, "beta": 0.10, "gain_smooth": 0.7,
+                "use_spectral_subtraction": True, "use_ml_postfilter": False,
+                "vad_hangover_frames": defaults.get("vad_hangover_frames", 0),
+            }
+        else:
+            next_mode = "Full adaptive"
+            next_params = {
+                "pre_emph_coeff": defaults.get("pre_emph_coeff", 0.97),
+                "alpha": 1.45, "beta": 0.07, "gain_smooth": 0.82,
+                "use_spectral_subtraction": True, "use_ml_postfilter": True,
+                "vad_hangover_frames": 5,
+            }
+
+        retry = run_pipeline(
+            input_filepath, output_filepath, params=next_params, use_agent=False,
+            clean_reference=clean_reference, feedback_enabled=False,
+        )
+
+        retry_scores = None
+        retry_quality = retry["metrics"]["snr_improvement_db"]
+        if clean_reference is not None:
+            from self_eval import evaluate
+            retry_scores = evaluate(clean_reference, retry["audio_final"], retry["Fs"])
+            if retry_scores.get("stoi") is not None:
+                retry_quality = retry_scores["stoi"]
+
+        retry_attempt = {
+            "mode": next_mode,
+            "quality_metric": quality_name,
+            "quality_value": retry_quality,
+            "metrics": retry["metrics"],
+            "reference_scores": retry_scores,
+        }
+        feedback["attempts"].append(retry_attempt)
+        feedback["corrected"] = True
+        feedback["retry_mode"] = next_mode
+        feedback["retry_quality"] = retry_quality
+
+        if retry_quality >= quality_value:
+            result = retry
+            feedback["kept"] = "retry"
+            result["agent_decision"] = {
+                "mode": next_mode,
+                "rationale": f"Self-correction escalated from {current_mode} to {next_mode} ({quality_name}: {quality_value:.3f} -> {retry_quality:.3f}).",
+                "params": next_params,
+            }
+        else:
+            feedback["kept"] = "initial"
+            sf.write(output_filepath, audio_final, Fs)
+            if result.get("agent_decision"):
+                result["agent_decision"]["rationale"] += (
+                    f" Self-correction tested {next_mode}, but {current_mode} was retained "
+                    f"({quality_name} {quality_value:.3f} vs {retry_quality:.3f})."
+                )
+
+        result["stage_log"].append({
+            "stage": "Self-evaluation feedback",
+            "detail": f"{quality_name}: {quality_value:.3f} -> {retry_quality:.3f}; escalated {current_mode} -> {next_mode}; kept {feedback['kept']}",
+        })
+
+    result["feedback"] = feedback
+    return result

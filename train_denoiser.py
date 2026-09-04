@@ -63,11 +63,15 @@ def main():
     parser.add_argument("--steps-per-epoch", type=int, default=500)
     parser.add_argument("--batch-size", type=int, default=12)
     parser.add_argument("--output", default=str(DEFAULT_CHECKPOINT))
+    parser.add_argument("--holdout-fraction", type=float, default=0.10,
+                        help="Reserve the final lexical fraction for ablation_testset evaluation")
     args = parser.parse_args()
     files = sorted(Path(args.data).rglob("*.flac"))
     if not files: raise SystemExit("No FLAC files found under --data")
+    split = max(1, int(len(files) * (1 - args.holdout_fraction)))
+    files = files[:split]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training on {device}; {len(files)} clean clips")
+    print(f"Training on {device}; {len(files)} training clips (final {args.holdout_fraction:.0%} held out)")
     loader = DataLoader(LibriSyntheticNoise(files, args.steps_per_epoch * args.batch_size),
                         batch_size=args.batch_size, shuffle=True, num_workers=0, pin_memory=device.type == "cuda")
     model = SpectralMaskDenoiser().to(device)

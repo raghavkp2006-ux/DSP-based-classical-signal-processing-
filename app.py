@@ -131,7 +131,9 @@ def process_endpoint():
             use_stt = request.form.get('use_stt', 'false').lower() == 'true'
             res = run_pipeline(in_path, out_path,
                                params={'use_ml_postfilter': force_ml} if force_ml else None,
-                               use_agent=use_agent)
+                               use_agent=use_agent,
+                               feedback_enabled=True,
+                               use_stt_feedback=use_stt)
             plots, waveform_data = generate_plots_and_waveforms(res)
             transcripts = None
             if use_stt:
@@ -149,6 +151,7 @@ def process_endpoint():
                 'analysis': res['analysis'],
                 'agent_decision': res['agent_decision'],
                 'params': res['params'],
+                'feedback': res.get('feedback'),
                 'transcripts': transcripts,
             })
         except Exception as e:
@@ -158,22 +161,59 @@ def _append_eval_log(filename, res):
     """Persist every agent decision for later ablation/evaluation analysis."""
     analysis = res.get('analysis') or {}
     decision = res.get('agent_decision') or {}
+    feedback = res.get('feedback') or {}
+    fields = [
+        'timestamp_utc', 'filename', 'snr_db', 'noise_stationarity_cv',
+        'speech_activity_ratio', 'decision', 'attempt', 'self_corrected',
+        'snr_after_db', 'snr_improvement_db'
+    ]
+    log_file = 'eval_log.csv'
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r', encoding='utf-8') as f:
+                first_line = f.readline()
+            if 'self_corrected' not in first_line:
+                old_rows = []
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for r in reader:
+                        r.setdefault('attempt', 'kept')
+                        r.setdefault('self_corrected', False)
+                        old_rows.append(r)
+                with open(log_file, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.DictWriter(f, fieldnames=fields)
+                    writer.writeheader()
+                    for r in old_rows:
+                        writer.writerow({k: r.get(k, '') for k in fields})
+        except Exception:
+            pass
+
     row = {
         'timestamp_utc': datetime.now(timezone.utc).isoformat(), 'filename': filename,
         'snr_db': analysis.get('snr_db', res['metrics']['snr_before_db']),
         'noise_stationarity_cv': analysis.get('noise_stationarity_cv', ''),
         'speech_activity_ratio': analysis.get('speech_activity_ratio', ''),
-        'decision': decision.get('mode', 'Manual'),
+        'decision': decision.get('mode', 'Manual'), 'attempt': 'kept',
+        'self_corrected': feedback.get('corrected', False),
         'snr_after_db': res['metrics']['snr_after_db'],
         'snr_improvement_db': res['metrics']['snr_improvement_db'],
     }
-    fields = list(row)
-    exists = os.path.exists('eval_log.csv')
-    with open('eval_log.csv', 'a', newline='', encoding='utf-8') as log:
+    exists = os.path.exists(log_file)
+    with open(log_file, 'a', newline='', encoding='utf-8') as log:
         writer = csv.DictWriter(log, fieldnames=fields)
         if not exists:
             writer.writeheader()
         writer.writerow(row)
+        for index, attempt in enumerate(feedback.get('attempts', []), 1):
+            att_metrics = attempt.get('metrics') or {}
+            attempt_row = dict(
+                row,
+                attempt=f'attempt_{index}',
+                decision=attempt.get('mode', row['decision']),
+                snr_after_db=att_metrics.get('snr_after_db', row['snr_after_db']),
+                snr_improvement_db=att_metrics.get('snr_improvement_db', row['snr_improvement_db'])
+            )
+            writer.writerow(attempt_row)
 
 @app.route('/outputs/<filename>')
 def serve_output(filename):

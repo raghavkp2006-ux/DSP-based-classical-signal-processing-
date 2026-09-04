@@ -1,0 +1,22 @@
+# Python environments and bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Trained checkpoints are reproducible from train_denoiser.py; use Git LFS if publishing one.
+*.pt
+
+# Runtime outputs and local evaluation data
+uploads/
+outputs/
+eval_log.csv
+err.txt
+out.txt
+
+# Local test / demo recordings
+*.wav
+*.mp3
+*.mpeg
+*.flac

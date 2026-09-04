@@ -1,0 +1,13 @@
+Flask
+Flask-Cors
+Werkzeug
+numpy
+scipy
+soundfile
+matplotlib
+# Optional autonomous-agent features (the dashboard degrades gracefully if absent)
+noisereduce
+openai-whisper
+pesq
+pystoi
+imageio-ffmpeg

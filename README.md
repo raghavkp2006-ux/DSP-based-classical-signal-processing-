@@ -8,7 +8,7 @@ SignalChain listens to noisy audio, measures its conditions, selects an enhancem
 - **Rule-based decision agent:** estimates SNR, noise stationarity, and speech activity, then selects an explainable processing policy.
 - **Trained ML post-filter:** compact CNN spectral-mask denoiser trained with synthetic noisy/clean speech pairs.
 - **Whisper STT:** optional raw-versus-enhanced transcription using Whisper Base.
-- **Self-evaluation:** STOI, PESQ when installed, and decision logging for ablation studies.
+- **Self-evaluation:** STOI-based scoring and decision logging for ablation studies.
 - **Flask dashboard:** upload audio, inspect the decision, listen to both signals, and view waveform, spectrogram, PSD, and VAD results.
 
 ## Run
@@ -38,4 +38,8 @@ The checkpoint is saved to `models/spectral_mask_denoiser.pt`. It is intentional
 - `ml_postfilter.py`, `stt_module.py`, `self_eval.py` — ML, STT, and evaluation modules
 - `app.py`, `templates/` — Flask dashboard
 
-The FFmpeg fallback can recover many partially damaged MP3/MPEG/WhatsApp recordings. Reference-based PESQ/STOI requires the clean original alongside each noisy test clip.
+The FFmpeg fallback can recover many partially damaged MP3/MPEG/WhatsApp recordings. Reference-based STOI requires the clean original alongside each noisy test clip.
+
+## Evaluation metric
+
+This environment uses **STOI-only** reporting. PESQ is unavailable because its native extension requires Microsoft C++ Build Tools; all reported quality metrics and ablation conclusions are therefore STOI-based.

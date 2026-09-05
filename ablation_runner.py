@@ -46,7 +46,7 @@ def mean_or_blank(values):
 
 
 def write_summary(rows, output: Path):
-    fields = ("config", "snr_db_condition", "runs", "mean_snr_improvement_db", "mean_stoi", "mean_pesq")
+    fields = ("config", "snr_db_condition", "runs", "mean_snr_improvement_db", "mean_stoi")
     summary = []
     configs_to_summarize = [c for c in ALL_CONFIGS if any(r["config"] == c for r in rows)]
     for config in configs_to_summarize:
@@ -54,13 +54,11 @@ def write_summary(rows, output: Path):
             group = [r for r in rows if r["config"] == config and int(r["snr_db_condition"]) == condition]
             summary.append({"config": config, "snr_db_condition": condition, "runs": len(group),
                             "mean_snr_improvement_db": mean_or_blank(r["snr_improvement_db"] for r in group),
-                            "mean_stoi": mean_or_blank(r["stoi"] for r in group),
-                            "mean_pesq": mean_or_blank(r["pesq"] for r in group)})
+                            "mean_stoi": mean_or_blank(r["stoi"] for r in group)})
         group = [r for r in rows if r["config"] == config]
         summary.append({"config": config, "snr_db_condition": "all", "runs": len(group),
                         "mean_snr_improvement_db": mean_or_blank(r["snr_improvement_db"] for r in group),
-                        "mean_stoi": mean_or_blank(r["stoi"] for r in group),
-                        "mean_pesq": mean_or_blank(r["pesq"] for r in group)})
+                        "mean_stoi": mean_or_blank(r["stoi"] for r in group)})
     with output.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerows(summary)
     return summary
@@ -113,8 +111,7 @@ def main():
         rows.append({"file_id": item["file_id"], "noise_type": item["noise_type"],
                      "snr_db_condition": item["snr_db"], "config": "unprocessed",
                      "snr_before_db": round(eval_snr_before, 2), "snr_after_db": round(eval_snr_before, 2),
-                     "snr_improvement_db": 0.0, "stoi": noisy_scores.get("stoi"),
-                     "pesq": noisy_scores.get("pesq"), "transcript_delta": noisy_stt})
+                         "snr_improvement_db": 0.0, "stoi": noisy_scores.get("stoi"), "transcript_delta": noisy_stt})
 
         # 3. Processed configurations
         for config, settings in CONFIGS.items():
@@ -129,10 +126,9 @@ def main():
             rows.append({"file_id": item["file_id"], "noise_type": item["noise_type"],
                          "snr_db_condition": item["snr_db"], "config": config,
                          "snr_before_db": metrics["snr_before_db"], "snr_after_db": metrics["snr_after_db"],
-                         "snr_improvement_db": metrics["snr_improvement_db"], "stoi": scores.get("stoi"),
-                         "pesq": scores.get("pesq"), "transcript_delta": transcript_delta})
+                         "snr_improvement_db": metrics["snr_improvement_db"], "stoi": scores.get("stoi"), "transcript_delta": transcript_delta})
     fields = ("file_id", "noise_type", "snr_db_condition", "config", "snr_before_db", "snr_after_db",
-              "snr_improvement_db", "stoi", "pesq", "transcript_delta")
+              "snr_improvement_db", "stoi", "transcript_delta")
     with (output / "ablation_results.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerows(rows)
     summary = write_summary(rows, output / "ablation_summary.csv")

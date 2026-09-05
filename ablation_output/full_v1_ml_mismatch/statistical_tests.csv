@@ -1,0 +1,5 @@
+comparison,left_config,right_config,metric,n,t_statistic,p_value,mean_difference,interpretation
+dsp_only_vs_agent,dsp_only,agent,snr_improvement_db,40,-3.149389,0.003136,2.46675,"agent significantly outperforms dsp_only on snr_improvement_db, p=0.003136."
+dsp_only_vs_agent,dsp_only,agent,stoi,40,-3.088706,0.003696,0.015428,"agent significantly outperforms dsp_only on stoi, p=0.003696."
+dsp_only_vs_dsp_ml,dsp_only,dsp_ml,stoi,40,10.953282,0.0,-0.006972,"dsp_ml significantly underperforms dsp_only on stoi, p=1.825e-13."
+agent_vs_unprocessed,agent,unprocessed,stoi,40,-12.058378,0.0,0.07229,"unprocessed significantly outperforms agent on stoi, p=9.9e-15."

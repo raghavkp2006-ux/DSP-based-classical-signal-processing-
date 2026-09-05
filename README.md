@@ -43,3 +43,15 @@ The FFmpeg fallback can recover many partially damaged MP3/MPEG/WhatsApp recordi
 ## Evaluation metric
 
 This environment uses **STOI-only** reporting. PESQ is unavailable because its native extension requires Microsoft C++ Build Tools; all reported quality metrics and ablation conclusions are therefore STOI-based.
+
+## Final validated results
+
+The final ablation uses the retrained DSP-aware ML checkpoint. `dsp_ml` significantly
+outperforms `dsp_only` on STOI (p=0.000146), and the autonomous `agent` also significantly
+outperforms `dsp_only` on STOI (p=0.000231). Segmental SNR improvement alone is not a
+reliable quality proxy: it rewarded an earlier checkpoint that suppressed speech energy
+indiscriminately, so STOI is the primary reported metric.
+
+The remaining limitation is that the agent still trails the unprocessed baseline on STOI
+(0.822 vs 0.891), likely near the practical ceiling for these DSP stages without further
+hurting intelligibility.

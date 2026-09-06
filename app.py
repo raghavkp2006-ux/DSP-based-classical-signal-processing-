@@ -21,7 +21,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.utils import secure_filename
 
-from dsp_pipeline import run_pipeline
+from dsp_pipeline import load_audio, run_pipeline
 from stt_module import transcribe
 
 # ── App & config ──────────────────────────────────────────────────────────
@@ -210,6 +210,22 @@ def process_endpoint():
                      os.path.getsize(in_path))
 
         try:
+            audio_probe, probe_fs = load_audio(in_path)
+        except Exception as exc:
+            logger.warning("Failed to decode upload %s: %s", input_id, exc)
+            return jsonify({'error': 'Could not decode this audio file.'}), 422
+
+        duration_sec = len(audio_probe) / probe_fs
+        if duration_sec > MAX_AUDIO_SECONDS:
+            logger.warning("Rejected request %s: duration %.1fs exceeds %ds",
+                           input_id, duration_sec, MAX_AUDIO_SECONDS)
+            return jsonify({
+                'error': f'Audio exceeds the {MAX_AUDIO_SECONDS // 60} minute limit '
+                         f'({duration_sec:.0f}s decoded).'
+            }), 422
+        del audio_probe  # free memory before the real pipeline run decodes it again
+
+        try:
             use_agent = request.form.get('use_agent', 'true').lower() == 'true'
             force_ml = request.form.get('use_ml_postfilter', 'false').lower() == 'true'
             use_stt = request.form.get('use_stt', 'false').lower() == 'true'
@@ -234,16 +250,6 @@ def process_endpoint():
                                  'Try a shorter audio clip.',
                         'error_id': input_id[:8]
                     }), 504
-
-            # Fix 2: Check decoded audio duration against cap
-            duration_sec = res['N'] / res['Fs']
-            if duration_sec > MAX_AUDIO_SECONDS:
-                logger.warning("Rejected request %s: duration %.1fs exceeds %ds",
-                               input_id, duration_sec, MAX_AUDIO_SECONDS)
-                return jsonify({
-                    'error': f'Audio exceeds the {MAX_AUDIO_SECONDS // 60} minute limit '
-                             f'({duration_sec:.0f}s decoded).'
-                }), 422
 
             plots, waveform_data = generate_plots_and_waveforms(res)
             transcripts = None

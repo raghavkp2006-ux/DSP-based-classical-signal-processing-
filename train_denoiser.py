@@ -140,10 +140,16 @@ def main():
         if mean_stoi > best_stoi:
             best_stoi = mean_stoi
             output = Path(args.output); output.parent.mkdir(parents=True, exist_ok=True)
-            torch.save({"model_state": model.state_dict(), "channels": 24, "sample_rate": 16000,
-                        "n_fft": 512, "hop": 128, "epochs": epoch + 1,
-                        "training_files": len(files), "validation_files": len(val_files),
-                        "best_validation_stoi": best_stoi, "input_distribution": "classical_dsp_output"}, output)
+            # Save weights separately (weights_only=True compatible)
+            torch.save(model.state_dict(), output)
+            # Save metadata as JSON sidecar
+            import json
+            meta = {"channels": 24, "sample_rate": 16000,
+                    "n_fft": 512, "hop": 128, "epochs": epoch + 1,
+                    "training_files": len(files), "validation_files": len(val_files),
+                    "best_validation_stoi": best_stoi, "input_distribution": "classical_dsp_output"}
+            with open(output.with_suffix('.json'), 'w') as mf:
+                json.dump(meta, mf, indent=2)
             print(f"  saved new best checkpoint (STOI {best_stoi:.4f})", flush=True)
     print(f"Saved best checkpoint: {args.output} (validation STOI {best_stoi:.4f})")
 

@@ -7,6 +7,14 @@ import subprocess
 import numpy as np
 
 
+_MODEL_CACHE: dict[str, "whisper.Whisper"] = {}
+
+def _get_model(model_size: str):
+    import whisper
+    if model_size not in _MODEL_CACHE:
+        _MODEL_CACHE[model_size] = whisper.load_model(model_size)
+    return _MODEL_CACHE[model_size]
+
 def transcribe(audio_path: str, model_size: str = "base") -> dict:
     try:
         import whisper
@@ -24,7 +32,7 @@ def transcribe(audio_path: str, model_size: str = "base") -> dict:
         samples = np.frombuffer(decoded.stdout, dtype=np.float32).copy()
         if samples.size == 0:
             raise RuntimeError("FFmpeg decoded no audio samples.")
-        model = whisper.load_model(model_size)
+        model = _get_model(model_size)
         result = model.transcribe(samples, fp16=False)
         return {"text": result.get("text", "").strip(), "available": True, "message": ""}
     except Exception as exc:

@@ -20,6 +20,19 @@ python app.py
 
 Open `http://127.0.0.1:5000`.
 
+By default, debug mode is **off** and the server binds to `127.0.0.1:5000`. For local development with auto-reload, set `FLASK_DEBUG=1`. To change the port, set the `PORT` environment variable.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `FLASK_DEBUG` | `0` | Set to `1` for development auto-reload |
+| `PORT` | `5000` | Server port |
+| `MAX_AUDIO_SECONDS` | `600` | Max decoded audio duration (seconds) |
+| `PIPELINE_TIMEOUT_SECONDS` | `60` | Wall-clock timeout for the pipeline |
+| `FILE_RETENTION_SECONDS` | `3600` | Auto-cleanup age for upload/output files |
+| `PROCESS_RATE_LIMIT` | `10 per minute` | Rate limit on `/process` endpoint |
+
 ## Train the ML post-filter
 
 Use clean `.flac` speech such as LibriSpeech `dev-clean`:
@@ -28,7 +41,11 @@ Use clean `.flac` speech such as LibriSpeech `dev-clean`:
 python train_denoiser.py --data "C:\path\to\LibriSpeech\dev-clean" --epochs 8 --steps-per-epoch 500
 ```
 
-The checkpoint is saved to `models/spectral_mask_denoiser.pt`. It is intentionally excluded from Git as a generated binary artifact; use Git LFS if you want to publish it.
+The training script saves two files:
+- `models/spectral_mask_denoiser.pt` — model weights only (loaded with `weights_only=True`)
+- `models/spectral_mask_denoiser.json` — hyperparameter metadata sidecar
+
+Both are tracked in git (the checkpoint is ~50KB, small enough to not need Git LFS).
 
 ## Layout
 

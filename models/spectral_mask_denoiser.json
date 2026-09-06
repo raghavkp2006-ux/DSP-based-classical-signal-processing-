@@ -1,0 +1,11 @@
+{
+  "channels": 24,
+  "sample_rate": 16000,
+  "n_fft": 512,
+  "hop": 128,
+  "epochs": 2,
+  "training_files": 2310,
+  "validation_files": 122,
+  "best_validation_stoi": 0.7821584259069695,
+  "input_distribution": "classical_dsp_output"
+}

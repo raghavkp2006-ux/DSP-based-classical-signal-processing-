@@ -30,9 +30,18 @@ def load_model(checkpoint: str | Path = DEFAULT_CHECKPOINT, device: str | None =
     if not checkpoint.exists():
         raise FileNotFoundError(f"No trained model at {checkpoint}")
     dev = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
-    payload = torch.load(checkpoint, map_location=dev, weights_only=False)
+    
+    json_path = checkpoint.with_suffix('.json')
+    if json_path.exists():
+        import json
+        with open(json_path, 'r') as f:
+            payload = json.load(f)
+    else:
+        payload = {}
+        
+    model_state = torch.load(checkpoint, map_location=dev, weights_only=True)
     model = SpectralMaskDenoiser(payload.get("channels", 24)).to(dev)
-    model.load_state_dict(payload["model_state"])
+    model.load_state_dict(model_state)
     model.eval()
     return model, payload, dev
 

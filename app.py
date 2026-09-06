@@ -3,18 +3,28 @@ import io
 import base64
 import uuid
 import csv
+import time
+import glob
+import logging
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 import numpy as np
 from scipy import signal
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.utils import secure_filename
 
 from dsp_pipeline import run_pipeline
 from stt_module import transcribe
 
+# ── App & config ──────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs'
@@ -22,6 +32,65 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+
+# ── Fix 2: File-type allow-list ───────────────────────────────────────────
+ALLOWED_EXTENSIONS = {'.wav', '.mp3', '.m4a', '.ogg', '.flac', '.aac', '.mpeg'}
+MAX_AUDIO_SECONDS = int(os.environ.get('MAX_AUDIO_SECONDS', '600'))  # 10 min default
+PIPELINE_TIMEOUT_SECONDS = int(os.environ.get('PIPELINE_TIMEOUT_SECONDS', '60'))
+
+# ── Fix 6: File retention ────────────────────────────────────────────────
+FILE_RETENTION_SECONDS = int(os.environ.get('FILE_RETENTION_SECONDS', '3600'))  # 1 hour
+
+# ── Fix 8: Structured logging ────────────────────────────────────────────
+logger = logging.getLogger('signalchain')
+logger.setLevel(logging.INFO)
+_log_handler = RotatingFileHandler('signalchain.log', maxBytes=5_000_000, backupCount=3,
+                                   encoding='utf-8')
+_log_handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(message)s', datefmt='%Y-%m-%dT%H:%M:%S'))
+logger.addHandler(_log_handler)
+# Also log to stdout for console visibility during development
+_stream_handler = logging.StreamHandler()
+_stream_handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(message)s', datefmt='%Y-%m-%dT%H:%M:%S'))
+logger.addHandler(_stream_handler)
+
+# ── Fix 3: Rate limiting ─────────────────────────────────────────────────
+_rate_limit = os.environ.get('PROCESS_RATE_LIMIT', '10 per minute')
+limiter = Limiter(get_remote_address, app=app, default_limits=[],
+                  storage_uri='memory://')
+
+
+# ── Fix 13: Security headers ─────────────────────────────────────────────
+@app.after_request
+def _set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    return response
+
+
+# ── Fix 6: Cleanup routine ───────────────────────────────────────────────
+def _cleanup_old_files():
+    """Delete files in uploads/ and outputs/ older than FILE_RETENTION_SECONDS."""
+    now = time.time()
+    cleaned = 0
+    for folder in (app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']):
+        folder_path = Path(folder)
+        if not folder_path.exists():
+            continue
+        for fpath in folder_path.iterdir():
+            if fpath.is_file():
+                try:
+                    age = now - os.path.getmtime(fpath)
+                    if age > FILE_RETENTION_SECONDS:
+                        fpath.unlink()
+                        cleaned += 1
+                except OSError:
+                    pass
+    if cleaned:
+        logger.info("Cleanup: removed %d file(s) older than %ds", cleaned,
+                    FILE_RETENTION_SECONDS)
+
 
 def generate_plots_and_waveforms(res):
     audio_raw = res["audio_raw"]
@@ -105,7 +174,11 @@ def index():
 
 @app.route('/process', methods=['POST'])
 @app.route('/upload', methods=['POST'])
+@limiter.limit(_rate_limit)
 def process_endpoint():
+    # Fix 6: Clean up old files on each request
+    _cleanup_old_files()
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     file = request.files['file']
@@ -114,31 +187,76 @@ def process_endpoint():
     if file:
         filename = secure_filename(file.filename)
         input_id = str(uuid.uuid4())
-        ext = os.path.splitext(filename)[1]
+        ext = os.path.splitext(filename)[1].lower()
         if not ext:
             ext = '.wav'
+
+        # Fix 2: Validate file extension against allow-list
+        if ext not in ALLOWED_EXTENSIONS:
+            logger.warning("Rejected upload %s: unsupported extension %s", input_id, ext)
+            return jsonify({
+                'error': f'Unsupported file type "{ext}". '
+                         f'Allowed: {", ".join(sorted(ALLOWED_EXTENSIONS))}'
+            }), 400
+
         in_name = f"{input_id}_in{ext}"
         out_name = f"{input_id}_out.wav"
-        
+
         in_path = os.path.join(app.config['UPLOAD_FOLDER'], in_name)
         out_path = os.path.join(app.config['OUTPUT_FOLDER'], out_name)
-        
+
         file.save(in_path)
-        
+        logger.info("Processing request %s (ext=%s, size=%d bytes)", input_id, ext,
+                     os.path.getsize(in_path))
+
         try:
             use_agent = request.form.get('use_agent', 'true').lower() == 'true'
             force_ml = request.form.get('use_ml_postfilter', 'false').lower() == 'true'
             use_stt = request.form.get('use_stt', 'false').lower() == 'true'
-            res = run_pipeline(in_path, out_path,
-                               params={'use_ml_postfilter': force_ml} if force_ml else None,
-                               use_agent=use_agent,
-                               feedback_enabled=True,
-                               use_stt_feedback=use_stt)
+
+            # Fix 2: Run pipeline with wall-clock timeout (Windows-compatible)
+            def _run():
+                return run_pipeline(in_path, out_path,
+                                    params={'use_ml_postfilter': force_ml} if force_ml else None,
+                                    use_agent=use_agent,
+                                    feedback_enabled=True,
+                                    use_stt_feedback=use_stt)
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_run)
+                try:
+                    res = future.result(timeout=PIPELINE_TIMEOUT_SECONDS)
+                except FuturesTimeoutError:
+                    logger.error("Pipeline timeout for request %s after %ds",
+                                 input_id, PIPELINE_TIMEOUT_SECONDS)
+                    return jsonify({
+                        'error': f'Processing timed out after {PIPELINE_TIMEOUT_SECONDS}s. '
+                                 'Try a shorter audio clip.',
+                        'error_id': input_id[:8]
+                    }), 504
+
+            # Fix 2: Check decoded audio duration against cap
+            duration_sec = res['N'] / res['Fs']
+            if duration_sec > MAX_AUDIO_SECONDS:
+                logger.warning("Rejected request %s: duration %.1fs exceeds %ds",
+                               input_id, duration_sec, MAX_AUDIO_SECONDS)
+                return jsonify({
+                    'error': f'Audio exceeds the {MAX_AUDIO_SECONDS // 60} minute limit '
+                             f'({duration_sec:.0f}s decoded).'
+                }), 422
+
             plots, waveform_data = generate_plots_and_waveforms(res)
             transcripts = None
             if use_stt:
                 transcripts = {'raw': transcribe(in_path), 'enhanced': transcribe(out_path)}
-            _append_eval_log(filename, res)
+
+            # Fix 9: Log with input_id, not raw filename
+            _append_eval_log(input_id, res)
+
+            logger.info("Completed request %s: SNR %.1f -> %.1f dB, duration %.1fs",
+                        input_id, res['metrics']['snr_before_db'],
+                        res['metrics']['snr_after_db'], duration_sec)
+
             return jsonify({
                 'success': True,
                 'stage_log': res['stage_log'],
@@ -154,16 +272,32 @@ def process_endpoint():
                 'feedback': res.get('feedback'),
                 'transcripts': transcripts,
             })
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        except ValueError as ve:
+            # Specific pipeline errors (e.g. "Audio is too short")
+            logger.warning("Validation error for request %s: %s", input_id, ve)
+            return jsonify({'error': str(ve)}), 422
+        # Fix 7: Stop leaking raw exception text to the client
+        except Exception:
+            error_id = uuid.uuid4().hex[:8]
+            logger.exception("process_endpoint failed [%s]", error_id)
+            return jsonify({
+                'error': 'Something went wrong processing this file.',
+                'error_id': error_id
+            }), 500
 
-def _append_eval_log(filename, res):
-    """Persist every agent decision for later ablation/evaluation analysis."""
+
+def _append_eval_log(input_id, res):
+    """Persist every agent decision for later ablation/evaluation analysis.
+
+    Fix 9: Stores the generated UUID (input_id) instead of the raw user
+    filename to avoid CSV-injection risk and reduce user-identifying data
+    on disk.
+    """
     analysis = res.get('analysis') or {}
     decision = res.get('agent_decision') or {}
     feedback = res.get('feedback') or {}
     fields = [
-        'timestamp_utc', 'filename', 'snr_db', 'noise_stationarity_cv',
+        'timestamp_utc', 'request_id', 'snr_db', 'noise_stationarity_cv',
         'speech_activity_ratio', 'decision', 'attempt', 'self_corrected',
         'snr_after_db', 'snr_improvement_db'
     ]
@@ -172,13 +306,16 @@ def _append_eval_log(filename, res):
         try:
             with open(log_file, 'r', encoding='utf-8') as f:
                 first_line = f.readline()
-            if 'self_corrected' not in first_line:
+            if 'self_corrected' not in first_line or 'request_id' not in first_line:
                 old_rows = []
                 with open(log_file, 'r', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
                     for r in reader:
                         r.setdefault('attempt', 'kept')
                         r.setdefault('self_corrected', False)
+                        # Migrate old 'filename' column to 'request_id'
+                        if 'request_id' not in r and 'filename' in r:
+                            r['request_id'] = r.pop('filename', '')
                         old_rows.append(r)
                 with open(log_file, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fields)
@@ -189,7 +326,8 @@ def _append_eval_log(filename, res):
             pass
 
     row = {
-        'timestamp_utc': datetime.now(timezone.utc).isoformat(), 'filename': filename,
+        'timestamp_utc': datetime.now(timezone.utc).isoformat(),
+        'request_id': input_id,
         'snr_db': analysis.get('snr_db', res['metrics']['snr_before_db']),
         'noise_stationarity_cv': analysis.get('noise_stationarity_cv', ''),
         'speech_activity_ratio': analysis.get('speech_activity_ratio', ''),
@@ -223,5 +361,9 @@ def serve_output(filename):
 def serve_upload(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+# ── Fix 1: Debug mode via env var ─────────────────────────────────────────
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_mode, host="127.0.0.1",
+            port=int(os.environ.get("PORT", 5000)),
+            threaded=True)

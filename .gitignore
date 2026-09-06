@@ -5,18 +5,19 @@ __pycache__/
 .venv/
 venv/
 
-# Trained checkpoints are reproducible from train_denoiser.py; use Git LFS if publishing one.
-*.pt
-
 # Runtime outputs and local evaluation data
 uploads/
 outputs/
 eval_log.csv
 err.txt
 out.txt
+signalchain.log
 
 # Local test / demo recordings
 *.wav
 *.mp3
 *.mpeg
 *.flac
+
+# Note: model checkpoints under models/ are intentionally tracked in git
+# (small enough at ~50KB, LFS is not needed). JSON sidecars are also tracked.

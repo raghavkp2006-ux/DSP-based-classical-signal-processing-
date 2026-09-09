@@ -1,0 +1,2 @@
+package com.signalchain.app.audio
+import java.io.*;import java.nio.*;object WavWriter{fun write(path:String,x:FloatArray,rate:Int){DataOutputStream(BufferedOutputStream(FileOutputStream(path))).use{d->fun i(v:Int){d.writeInt(Integer.reverseBytes(v))};fun s(v:Int){d.writeShort(Integer.reverseBytes(v))};d.writeBytes("RIFF");i(36+x.size*2);d.writeBytes("WAVEfmt ");i(16);s(1);s(1);i(rate);i(rate*2);s(2);s(16);d.writeBytes("data");i(x.size*2);x.forEach{val v=(it.coerceIn(-1f,1f)*32767).toInt();s(v)}}}}

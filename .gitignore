@@ -19,5 +19,10 @@ signalchain.log
 *.mpeg
 *.flac
 
+# Android/Gradle generated files
+.gradle/
+**/build/
+local.properties
+
 # Note: model checkpoints under models/ are intentionally tracked in git
 # (small enough at ~50KB, LFS is not needed). JSON sidecars are also tracked.

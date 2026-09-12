@@ -35,6 +35,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -50,5 +54,6 @@ dependencies {
     // On-device inference for the CNN spectral-mask denoiser (exported to ONNX)
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
 
+    testImplementation("junit:junit:4.13.2")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

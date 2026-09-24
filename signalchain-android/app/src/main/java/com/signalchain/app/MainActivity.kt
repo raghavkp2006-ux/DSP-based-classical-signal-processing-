@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.signalchain.app.audio.AudioPlayer
 import com.signalchain.app.audio.AudioRecorder
 import com.signalchain.app.pipeline.PipelineResult
@@ -101,30 +102,32 @@ fun SignalChainScreen() {
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
                         Text(
                             text = "SignalChain",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Surface(
-                            shape = CircleShape,
+                            shape = RoundedCornerShape(8.dp),
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.padding(top = 2.dp)
                         ) {
                             Text(
-                                text = "ON-DEVICE DSP",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                text = "ON-DEVICE",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -137,7 +140,7 @@ fun SignalChainScreen() {
             contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // ─── 1. Input Mode & Selection Card ─────────────────────
+            // ─── 1. Input Mode & Selection ──────────────────
             item {
                 UploadScreen(
                     selectedAudio = selectedAudio,
@@ -160,7 +163,7 @@ fun SignalChainScreen() {
                 )
             }
 
-            // ─── 2. Live Progress Card ──────────────────────────────
+            // ─── 2. Live Progress ───────────────────────────
             if (isProcessing) {
                 item {
                     ProcessingScreen(
@@ -169,7 +172,7 @@ fun SignalChainScreen() {
                 }
             }
 
-            // ─── 3. Result & Comparison Card ────────────────────────
+            // ─── 3. Results & Comparison ────────────────────
             activeResult?.let { res ->
                 item {
                     ResultsScreen(
@@ -183,7 +186,7 @@ fun SignalChainScreen() {
                 }
             }
 
-            // ─── 4. Session Run History ─────────────────────────────
+            // ─── 4. Session History ─────────────────────────
             if (history.isNotEmpty()) {
                 item {
                     HistorySection(

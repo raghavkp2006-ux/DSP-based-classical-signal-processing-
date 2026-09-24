@@ -19,8 +19,19 @@ class AudioPlayer {
 
     private var activeFis: FileInputStream? = null
 
+    /** Playback progress as a fraction 0.0–1.0, updated during AudioTrack streaming. */
+    @Volatile
+    var progressFraction: Float = 0f
+        private set
+
+    /** Duration of the currently-playing file in milliseconds (AudioTrack path only). */
+    @Volatile
+    var durationMs: Long = 0L
+        private set
+
     fun play(file: File, onError: (String) -> Unit = {}, onCompletion: () -> Unit = {}) {
         stop()
+        progressFraction = 0f
         if (!file.exists() || file.length() == 0L) {
             onError("Audio file does not exist or is empty")
             return
@@ -164,18 +175,26 @@ class AudioPlayer {
                 audioTrack = track
                 track.play()
 
+                // Calculate duration for progress tracking
+                val bytesPerSample = bitsPerSample / 8
+                val totalSamples = dataLength / (channels * bytesPerSample)
+                durationMs = (totalSamples * 1000L) / sampleRate
+
                 raf.seek(dataOffset)
                 val buffer = ByteArray(bufferSize)
                 var remaining = dataLength
+                val totalBytes = dataLength.toFloat()
                 while (isActive && remaining > 0) {
                     val toRead = minOf(buffer.size.toLong(), remaining).toInt()
                     val read = raf.read(buffer, 0, toRead)
                     if (read <= 0) break
                     track.write(buffer, 0, read)
                     remaining -= read
+                    progressFraction = ((totalBytes - remaining) / totalBytes).coerceIn(0f, 1f)
                 }
                 raf.close()
 
+                progressFraction = 1f
                 if (isActive) {
                     withContext(Dispatchers.Main) { onCompletion() }
                 }
@@ -211,6 +230,7 @@ class AudioPlayer {
     }
 
     fun stop() {
+        progressFraction = 0f
         try {
             playbackJob?.cancel()
             playbackJob = null

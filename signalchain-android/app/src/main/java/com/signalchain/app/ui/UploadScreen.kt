@@ -5,11 +5,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.signalchain.app.audio.AudioPlayer
 import com.signalchain.app.audio.AudioRecorder
@@ -61,7 +66,6 @@ fun UploadScreen(
         )
     }
 
-    // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -73,7 +77,6 @@ fun UploadScreen(
         }
     }
 
-    // Recording timer effect
     LaunchedEffect(isRecording) {
         if (isRecording) {
             recordingElapsedSec = 0
@@ -103,149 +106,426 @@ fun UploadScreen(
         }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        // ─── Mode Toggle (File / Mic) ──────────────────────────
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            Text(
-                text = "Input Audio",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Segmented control for input mode
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                ) {
+                    InputMode.entries.forEach { mode ->
+                        val isSelected = inputMode == mode
+                        val bgColor by animateColorAsState(
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else Color.Transparent,
+                            label = "tabBg"
+                        )
+                        val textColor by animateColorAsState(
+                            if (isSelected) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            label = "tabText"
+                        )
 
-            // Mode toggle tabs
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                horizontalArrangement = Arrangement.Center
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(bgColor)
+                                .clickable(enabled = !isProcessing && !isRecording) {
+                                    inputMode = mode
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = when (mode) {
+                                    InputMode.FILE -> "📁  Upload File"
+                                    InputMode.MICROPHONE -> "🎙  Record"
+                                },
+                                color = textColor,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // ─── FILE MODE ─────────────────────────────────────────
+        if (inputMode == InputMode.FILE) {
+            AnimatedVisibility(
+                visible = selectedAudio == null && !isPreparingFile,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
             ) {
-                InputMode.entries.forEach { mode ->
-                    val isSelected = inputMode == mode
-                    val bgColor by animateColorAsState(
-                        if (isSelected) MaterialTheme.colorScheme.primary
-                        else Color.Transparent,
-                        label = "tabBg"
-                    )
-                    val textColor by animateColorAsState(
-                        if (isSelected) MaterialTheme.colorScheme.onPrimary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                        label = "tabText"
-                    )
-
+                // Empty state — big drop zone
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
                     Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(bgColor)
-                            .clickable(enabled = !isProcessing && !isRecording) {
-                                inputMode = mode
-                            }
-                            .padding(vertical = 10.dp),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
+                        // Dashed border container
+                        val borderColor = MaterialTheme.colorScheme.outlineVariant
+                        androidx.compose.foundation.Canvas(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            drawRoundRect(
+                                color = borderColor,
+                                style = Stroke(
+                                    width = 2.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(
+                                        floatArrayOf(12.dp.toPx(), 8.dp.toPx()),
+                                        0f
+                                    )
+                                ),
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx())
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    enabled = !isProcessing
+                                ) {
+                                    picker.launch(arrayOf("audio/*", "application/ogg"))
+                                }
+                                .padding(vertical = 40.dp, horizontal = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Upload icon
+                            Surface(
+                                modifier = Modifier.size(64.dp),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "🎵",
+                                        fontSize = 28.sp
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = "Tap to select an audio file",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Text(
+                                text = "WAV • MP3 • AAC • OGG • FLAC • M4A",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Text(
+                                text = "Maximum file size: 50 MB",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Loading state while decoding
+            AnimatedVisibility(
+                visible = isPreparingFile,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(40.dp),
+                            strokeWidth = 3.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         Text(
-                            text = when (mode) {
-                                InputMode.FILE -> "📁  Upload File"
-                                InputMode.MICROPHONE -> "🎙  Record Mic"
-                            },
-                            color = textColor,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            text = "Decoding and validating audio…",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            // ─── FILE MODE ─────────────────────────────────
-            if (inputMode == InputMode.FILE) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = { picker.launch(arrayOf("audio/*", "application/ogg")) },
-                        enabled = !isProcessing && !isPreparingFile
+            // File selected — info card + process CTA
+            AnimatedVisibility(
+                visible = selectedAudio != null && !isPreparingFile,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                selectedAudio?.let { info ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Text("Pick Audio File")
-                    }
-
-                    if (selectedAudio != null && !isProcessing) {
-                        Button(
-                            onClick = { onStartEnhancement() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            )
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text("Enhance Audio")
+                            // File info header
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+                                // File icon
+                                Surface(
+                                    modifier = Modifier.size(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text("🎵", fontSize = 22.sp)
+                                    }
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = info.name,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = info.format,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                // Change file button
+                                TextButton(
+                                    onClick = { picker.launch(arrayOf("audio/*", "application/ogg")) },
+                                    enabled = !isProcessing
+                                ) {
+                                    Text("Change", fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+
+                            // Metadata chips row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                MetadataChip(
+                                    label = "Duration",
+                                    value = "%.1f s".format(info.durationSec)
+                                )
+                                MetadataChip(
+                                    label = "Size",
+                                    value = formatFileSize(info.sizeBytes)
+                                )
+                                MetadataChip(
+                                    label = "Rate",
+                                    value = "${info.sampleRate} Hz"
+                                )
+                            }
+
+                            // Waveform preview
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(64.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                WaveformView(
+                                    samples = info.samples,
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f)
+                                )
+                            }
+
+                            // Action buttons
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Preview playback
+                                OutlinedButton(
+                                    onClick = {
+                                        if (playingTrack == PlayingTrack.INPUT_PREVIEW) {
+                                            player.stop()
+                                            onPlayingTrackChanged(PlayingTrack.NONE)
+                                        } else {
+                                            onPlayingTrackChanged(PlayingTrack.INPUT_PREVIEW)
+                                            player.play(
+                                                file = File(info.filePath),
+                                                onError = { errMsg ->
+                                                    onPlayingTrackChanged(PlayingTrack.NONE)
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(errMsg)
+                                                    }
+                                                },
+                                                onCompletion = {
+                                                    onPlayingTrackChanged(PlayingTrack.NONE)
+                                                }
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(48.dp),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = if (playingTrack == PlayingTrack.INPUT_PREVIEW) "⏹  Stop" else "▶  Preview",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                // Process CTA
+                                Button(
+                                    onClick = { onStartEnhancement() },
+                                    enabled = !isProcessing,
+                                    modifier = Modifier
+                                        .weight(1.5f)
+                                        .height(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    Text(
+                                        text = "✨  Enhance Audio",
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-
-                if (isPreparingFile) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Text("Decoding and validating audio…", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
             }
+        }
 
-            // ─── MIC MODE ──────────────────────────────────
-            if (inputMode == InputMode.MICROPHONE) {
+        // ─── MIC MODE ──────────────────────────────────────────
+        if (inputMode == InputMode.MICROPHONE) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
                 if (!hasMicPermission) {
+                    // Permission request
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        Surface(
+                            modifier = Modifier.size(64.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("🎙", fontSize = 28.sp)
+                            }
+                        }
+
                         Text(
-                            text = "Microphone permission is needed to record audio directly from your device.",
+                            text = "Microphone access needed",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Grant permission to record audio directly from your device.",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Button(onClick = {
-                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                        }) {
-                            Text("Grant Microphone Permission")
+                        Button(
+                            onClick = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.height(48.dp)
+                        ) {
+                            Text("Grant Permission", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 } else {
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         if (isRecording) {
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Animated recording indicator
                             val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                             val pulseScale by infiniteTransition.animateFloat(
                                 initialValue = 1f,
-                                targetValue = 1.3f,
+                                targetValue = 1.25f,
                                 animationSpec = infiniteRepeatable(
-                                    animation = tween(600, easing = EaseInOutCubic),
+                                    animation = tween(700, easing = EaseInOutCubic),
                                     repeatMode = RepeatMode.Reverse
                                 ),
                                 label = "pulseScale"
                             )
                             val pulseAlpha by infiniteTransition.animateFloat(
-                                initialValue = 0.6f,
+                                initialValue = 0.5f,
                                 targetValue = 1f,
                                 animationSpec = infiniteRepeatable(
-                                    animation = tween(600, easing = EaseInOutCubic),
+                                    animation = tween(700, easing = EaseInOutCubic),
                                     repeatMode = RepeatMode.Reverse
                                 ),
                                 label = "pulseAlpha"
@@ -253,16 +533,16 @@ fun UploadScreen(
 
                             Box(
                                 modifier = Modifier
-                                    .size(80.dp)
+                                    .size(88.dp)
                                     .scale(pulseScale)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFE53935).copy(alpha = pulseAlpha * 0.2f))
-                                    .border(2.dp, Color(0xFFE53935).copy(alpha = pulseAlpha), CircleShape),
+                                    .background(Color(0xFFE53935).copy(alpha = pulseAlpha * 0.15f))
+                                    .border(2.5.dp, Color(0xFFE53935).copy(alpha = pulseAlpha), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(40.dp)
+                                        .size(44.dp)
                                         .clip(CircleShape)
                                         .background(Color(0xFFE53935))
                                 )
@@ -270,13 +550,13 @@ fun UploadScreen(
 
                             Text(
                                 text = formatRecordingTime(recordingElapsedSec),
-                                style = MaterialTheme.typography.headlineMedium,
+                                style = MaterialTheme.typography.displaySmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFE53935)
                             )
 
                             Text(
-                                text = "Recording…",
+                                text = "Recording in progress…",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -289,14 +569,37 @@ fun UploadScreen(
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFFE53935)
                                 ),
-                                modifier = Modifier.fillMaxWidth(0.6f)
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.65f)
+                                    .height(48.dp)
                             ) {
-                                Text("⏹  Stop Recording")
+                                Text("⏹  Stop Recording", fontWeight = FontWeight.Bold)
                             }
+
+                            Spacer(modifier = Modifier.height(4.dp))
                         } else {
+                            // Idle mic state
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Surface(
+                                modifier = Modifier.size(64.dp),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("🎙", fontSize = 28.sp)
+                                }
+                            }
+
                             Text(
-                                text = "Tap to start recording from your device microphone",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = "Record from microphone",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = "Capture audio directly and enhance it on-device",
+                                style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -344,117 +647,80 @@ fun UploadScreen(
                                     }
                                 },
                                 enabled = !isProcessing,
-                                modifier = Modifier.fillMaxWidth(0.6f)
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.65f)
+                                    .height(48.dp)
                             ) {
-                                Text("🎙  Start Recording")
+                                Text("🎙  Start Recording", fontWeight = FontWeight.SemiBold)
                             }
 
+                            // After recording — show selected audio + enhance button
                             if (selectedAudio != null && !isProcessing &&
                                 selectedAudio.format.contains("Microphone")
                             ) {
-                                Button(
-                                    onClick = { onStartEnhancement() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    ),
-                                    modifier = Modifier.fillMaxWidth(0.6f)
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Text("Enhance Audio")
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = selectedAudio.name,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = "%.1f s • ${formatFileSize(selectedAudio.sizeBytes)}".format(selectedAudio.durationSec),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = { onStartEnhancement() },
+                                        shape = RoundedCornerShape(12.dp),
+                                        modifier = Modifier.height(44.dp)
+                                    ) {
+                                        Text("✨  Enhance", fontWeight = FontWeight.Bold)
+                                    }
                                 }
                             }
+
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
                 }
             }
+        }
+    }
+}
 
-            // ─── SELECTED AUDIO INFO & PREVIEW PLAYER ───────
-            selectedAudio?.let { info ->
-                HorizontalDivider()
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = info.name,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1
-                            )
-                            Text(
-                                text = "${info.format} • ${formatFileSize(info.sizeBytes)}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        // Direct Play/Stop button right on the loaded input audio!
-                        FilledTonalButton(
-                            onClick = {
-                                if (playingTrack == PlayingTrack.INPUT_PREVIEW) {
-                                    player.stop()
-                                    onPlayingTrackChanged(PlayingTrack.NONE)
-                                } else {
-                                    onPlayingTrackChanged(PlayingTrack.INPUT_PREVIEW)
-                                    player.play(
-                                        file = File(info.filePath),
-                                        onError = { errMsg ->
-                                            onPlayingTrackChanged(PlayingTrack.NONE)
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(errMsg)
-                                            }
-                                        },
-                                        onCompletion = {
-                                            onPlayingTrackChanged(PlayingTrack.NONE)
-                                        }
-                                    )
-                                }
-                            },
-                            modifier = Modifier.height(36.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                        ) {
-                            Text(
-                                text = if (playingTrack == PlayingTrack.INPUT_PREVIEW) "⏹ Stop" else "▶ Listen Audio",
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Duration: %.2f s".format(info.durationSec),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Rate: ${info.sampleRate} Hz",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    // Interactive Waveform of the Input Audio
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        WaveformView(
-                            samples = info.samples,
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                }
-            }
+/** Small metadata chip used in the file info card */
+@Composable
+private fun MetadataChip(label: String, value: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 10.sp
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }

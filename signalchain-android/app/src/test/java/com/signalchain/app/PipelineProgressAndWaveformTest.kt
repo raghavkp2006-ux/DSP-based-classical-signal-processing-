@@ -109,16 +109,17 @@ class PipelineProgressAndWaveformTest {
             val inputWav = File(tempDir, "test_input.wav")
             val d = java.io.DataOutputStream(java.io.BufferedOutputStream(java.io.FileOutputStream(inputWav)))
             fun i(v: Int) { d.writeInt(Integer.reverseBytes(v)) }
+            fun s(v: Short) { d.writeShort(java.lang.Short.reverseBytes(v).toInt()) }
             d.writeBytes("RIFF")
             i(36 + testSamples.size * 2)
             d.writeBytes("WAVEfmt ")
             i(16)
-            d.writeShort(1) // fmt = 1
-            d.writeShort(1) // ch = 1
+            s(1.toShort()) // fmt = 1
+            s(1.toShort()) // ch = 1
             i(sampleRate)
             i(sampleRate * 2)
-            d.writeShort(2)
-            d.writeShort(16) // bits = 16
+            s(2.toShort())
+            s(16.toShort()) // bits = 16
             d.writeBytes("data")
             i(testSamples.size * 2)
             val bb = java.nio.ByteBuffer.allocate(testSamples.size * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN)

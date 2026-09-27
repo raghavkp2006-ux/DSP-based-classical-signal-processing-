@@ -55,5 +55,6 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.11.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

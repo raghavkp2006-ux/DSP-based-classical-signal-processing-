@@ -1,0 +1,4 @@
+RELEASE_STORE_FILE=/absolute/path/to/signalchain-release.keystore
+RELEASE_STORE_PASSWORD=<password>
+RELEASE_KEY_ALIAS=signalchain
+RELEASE_KEY_PASSWORD=<password>

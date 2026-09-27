@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.signalchain.app.audio.AudioPlayer
 import com.signalchain.app.audio.AudioRecorder
+import com.signalchain.app.util.toUserFacingError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
@@ -97,8 +98,9 @@ fun UploadScreen(
                 val prepared = loadAndPrepareAudio(context, uri)
                 onAudioSelected(prepared)
             } catch (e: Exception) {
+                android.util.Log.e("SignalChain", "Failed to read audio file", e)
                 snackbarHostState.showSnackbar(
-                    message = e.message ?: "Failed to read selected audio file"
+                    message = e.toUserFacingError().userMessage
                 )
             } finally {
                 onPreparingFileChanged(false)
@@ -390,7 +392,7 @@ fun UploadScreen(
                             // Action buttons
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 // Preview playback
                                 OutlinedButton(
@@ -417,11 +419,15 @@ fun UploadScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(48.dp),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                 ) {
                                     Text(
-                                        text = if (playingTrack == PlayingTrack.INPUT_PREVIEW) "⏹  Stop" else "▶  Preview",
-                                        fontWeight = FontWeight.SemiBold
+                                        text = if (playingTrack == PlayingTrack.INPUT_PREVIEW) "⏹ Stop" else "▶ Preview",
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
 
@@ -430,17 +436,21 @@ fun UploadScreen(
                                     onClick = { onStartEnhancement() },
                                     enabled = !isProcessing,
                                     modifier = Modifier
-                                        .weight(1.5f)
+                                        .weight(1f)
                                         .height(48.dp),
                                     shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary
                                     )
                                 ) {
                                     Text(
-                                        text = "✨  Enhance Audio",
+                                        text = "✨ Enhance Audio",
                                         fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.labelLarge
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }
@@ -638,8 +648,9 @@ fun UploadScreen(
                                                 snackbarHostState.showSnackbar("Recording was too short or empty")
                                             }
                                         } catch (e: Exception) {
+                                            android.util.Log.e("SignalChain", "Recording failed", e)
                                             snackbarHostState.showSnackbar(
-                                                e.message ?: "Recording failed"
+                                                e.toUserFacingError().userMessage
                                             )
                                         } finally {
                                             isRecording = false
@@ -682,9 +693,16 @@ fun UploadScreen(
                                     Button(
                                         onClick = { onStartEnhancement() },
                                         shape = RoundedCornerShape(12.dp),
-                                        modifier = Modifier.height(44.dp)
+                                        modifier = Modifier.height(44.dp),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                     ) {
-                                        Text("✨  Enhance", fontWeight = FontWeight.Bold)
+                                        Text(
+                                            "✨ Enhance",
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
                                 }
                             }

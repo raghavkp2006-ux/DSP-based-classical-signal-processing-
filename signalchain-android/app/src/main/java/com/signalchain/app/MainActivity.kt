@@ -19,6 +19,7 @@ import com.signalchain.app.audio.AudioRecorder
 import com.signalchain.app.pipeline.PipelineResult
 import com.signalchain.app.pipeline.RunPipeline
 import com.signalchain.app.ui.*
+import com.signalchain.app.util.toUserFacingError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,9 +87,14 @@ fun SignalChainScreen() {
                 activeResult = res
                 val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
                 history.add(0, RunHistoryItem(timestamp = timeStr, fileInfo = audio, result = res))
+                
+                if (res.warning != null) {
+                    snackbarHostState.showSnackbar(res.warning)
+                }
             } catch (e: Exception) {
+                android.util.Log.e("SignalChain", "Pipeline enhancement failed", e)
                 snackbarHostState.showSnackbar(
-                    message = e.message ?: "Pipeline enhancement failed"
+                    message = e.toUserFacingError().userMessage
                 )
             } finally {
                 isProcessing = false

@@ -1,6 +1,7 @@
 package com.signalchain.app.ui
 
 import android.content.Intent
+import com.signalchain.app.util.toUserFacingError
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -320,8 +321,9 @@ fun ResultsScreen(
                     }
                     context.startActivity(Intent.createChooser(shareIntent, "Share or Save Enhanced Audio"))
                 } catch (e: Exception) {
+                    android.util.Log.e("SignalChain", "Failed to share file", e)
                     scope.launch {
-                        snackbarHostState.showSnackbar("Failed to share file: ${e.message}")
+                        snackbarHostState.showSnackbar(e.toUserFacingError().userMessage)
                     }
                 }
             },
@@ -329,14 +331,18 @@ fun ResultsScreen(
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(14.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Text(
-                text = "📤  Export / Share Enhanced Audio",
+                text = "📤 Export / Share Enhanced Audio",
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

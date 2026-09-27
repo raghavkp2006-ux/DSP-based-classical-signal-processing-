@@ -41,7 +41,7 @@ suspend fun loadAndPrepareAudio(context: Context, uri: Uri): SelectedAudioInfo =
             loadedAudio = WavLoader.load(temp.absolutePath)
             detectedFormat = "PCM WAV (Native)"
         } catch (e: Exception) {
-            android.util.Log.w("SignalChain", "WavLoader could not parse RIFF as standard PCM WAV (${e.message}), falling back to MediaCodec decoder")
+            android.util.Log.w("SignalChain", "WavLoader could not parse RIFF as standard PCM WAV, falling back to MediaCodec decoder", e)
         }
     }
 

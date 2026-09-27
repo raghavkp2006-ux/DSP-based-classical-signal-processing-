@@ -4,6 +4,7 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.media.MediaPlayer
+import com.signalchain.app.util.toUserFacingError
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
@@ -64,7 +65,7 @@ class AudioPlayer {
             mp.prepare()
             mp.start()
         } catch (e: Exception) {
-            android.util.Log.w("SignalChainAudioPlayer", "MediaPlayer failed (${e.message}), trying AudioTrack fallback", e)
+            android.util.Log.w("SignalChainAudioPlayer", "MediaPlayer failed, trying AudioTrack fallback", e)
             stop()
             playViaAudioTrack(file, onError, onCompletion)
         }
@@ -201,7 +202,7 @@ class AudioPlayer {
             } catch (e: Exception) {
                 if (isActive) {
                     android.util.Log.e("SignalChainAudioPlayer", "AudioTrack playback error", e)
-                    withContext(Dispatchers.Main) { onError(e.message ?: "Audio playback error") }
+                    withContext(Dispatchers.Main) { onError(e.toUserFacingError().userMessage) }
                 }
             } finally {
                 try {

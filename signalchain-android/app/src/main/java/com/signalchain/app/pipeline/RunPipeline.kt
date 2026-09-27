@@ -7,7 +7,8 @@ data class PipelineResult(
     val snrAfterDb: Double,
     val outputFilePath: String,
     val clipsPct: Double,
-    val enhancedSamples: FloatArray = FloatArray(0)
+    val enhancedSamples: FloatArray = FloatArray(0),
+    val warning: String? = null
 )
 class RunPipeline(private val context: Context) {
     fun run(inputPath: String, onProgress: (String) -> Unit = {}): PipelineResult {
@@ -30,11 +31,13 @@ class RunPipeline(private val context: Context) {
         y = Compressor.compress(y, raw.sampleRate, d.params.compressionRatio, d.params.compressionMakeupDb)
         var normalized = Compressor.normalizeAndLimit(y, x)
         onProgress("Running ML post-filter")
+        var warningMsg: String? = null
         if (d.params.useMlPostfilter) {
             try {
                 normalized = Compressor.normalizeAndLimit(OnnxDenoiser(context).apply(normalized.audio, raw.sampleRate), x)
             } catch (e: Exception) {
                 android.util.Log.e("SignalChain", "ML post-filter failed, falling back to DSP-only output", e)
+                warningMsg = com.signalchain.app.util.UserFacingError.ML_FALLBACK.userMessage
             }
         }
         onProgress("Finalizing")
@@ -47,7 +50,8 @@ class RunPipeline(private val context: Context) {
             SnrEstimator.estimateSnr(normalized.audio, fp, fixed.isSpeech),
             out.absolutePath,
             normalized.clipsPct,
-            enhancedSamples = normalized.audio
+            enhancedSamples = normalized.audio,
+            warning = warningMsg
         )
     }
 

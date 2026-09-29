@@ -9,6 +9,8 @@ import com.signalchain.app.audio.WavWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 fun formatRecordingTime(seconds: Int): String {
     val m = seconds / 60
@@ -18,67 +20,95 @@ fun formatRecordingTime(seconds: Int): String {
 
 suspend fun loadAndPrepareAudio(context: Context, uri: Uri): SelectedAudioInfo = withContext(Dispatchers.IO) {
     val (name, size) = queryFileMetadata(context, uri)
-    val temp = File.createTempFile("signalchain-input-", ".wav", context.cacheDir)
-    context.contentResolver.openInputStream(uri)?.use { input ->
-        temp.outputStream().use { out -> input.copyTo(out) }
-    } ?: error("Failed to open audio stream from selected URI")
-
     val maxBytes = 50L * 1024 * 1024
-    val actualSize = if (size > 0) size else temp.length()
-    require(actualSize in 1..maxBytes) { "File is empty or larger than the 50 MB limit." }
 
-    val isRiffWav = temp.length() >= 12 && temp.inputStream().use { s ->
-        val magic = ByteArray(4)
-        s.read(magic) == 4 && String(magic) == "RIFF"
+    // Avoid staging a known-oversized document in the app cache.
+    if (size > 0) {
+        require(size <= maxBytes) { "File is larger than the 50 MB limit." }
     }
 
-    var loadedAudio: WavLoader.LoadedAudio? = null
-    var detectedFormat = "Audio File"
+    val temp = File.createTempFile("signalchain-input-", ".wav", context.cacheDir)
+    try {
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            temp.outputStream().use { out -> copyWithSizeLimit(input, out, maxBytes) }
+        } ?: error("Failed to open audio stream from selected URI")
 
-    // If it looks like a WAV file, try standard WavLoader first
-    if (isRiffWav) {
-        try {
-            loadedAudio = WavLoader.load(temp.absolutePath)
-            detectedFormat = "PCM WAV (Native)"
-        } catch (e: Exception) {
-            android.util.Log.w("SignalChain", "WavLoader could not parse RIFF as standard PCM WAV, falling back to MediaCodec decoder", e)
+        val actualSize = if (size > 0) size else temp.length()
+        require(actualSize in 1..maxBytes) { "File is empty or larger than the 50 MB limit." }
+
+        val isRiffWav = temp.length() >= 12 && temp.inputStream().use { s ->
+            val magic = ByteArray(4)
+            s.read(magic) == 4 && String(magic) == "RIFF"
         }
-    }
 
-    // If not standard PCM WAV or if WavLoader failed (e.g. MP3, AAC, M4A, OGG, FLAC, floating-point/compressed WAV):
-    if (loadedAudio == null) {
-        try {
-            loadedAudio = AudioDecoder.decodeToMonoPcm(context, uri)
-            detectedFormat = "Decoded via MediaCodec"
-        } catch (e: Exception) {
-            // Also try decoding from the cached temp file directly if URI decoding had issues
+        var loadedAudio: WavLoader.LoadedAudio? = null
+        var detectedFormat = "Audio File"
+
+        // If it looks like a WAV file, try standard WavLoader first
+        if (isRiffWav) {
             try {
-                loadedAudio = AudioDecoder.decodeToMonoPcm(context, Uri.fromFile(temp))
-                detectedFormat = "Decoded via MediaCodec"
-            } catch (_: Exception) {
-                // Throw original error with friendly message
-                throw e
+                loadedAudio = WavLoader.load(temp.absolutePath)
+                detectedFormat = "PCM WAV (Native)"
+            } catch (e: Exception) {
+                android.util.Log.w("SignalChain", "WavLoader could not parse RIFF as standard PCM WAV, falling back to MediaCodec decoder", e)
             }
         }
+
+        // If not standard PCM WAV or if WavLoader failed (e.g. MP3, AAC, M4A, OGG, FLAC, floating-point/compressed WAV):
+        if (loadedAudio == null) {
+            try {
+                loadedAudio = AudioDecoder.decodeToMonoPcm(context, uri)
+                detectedFormat = "Decoded via MediaCodec"
+            } catch (e: Exception) {
+                // Also try decoding from the cached temp file directly if URI decoding had issues
+                try {
+                    loadedAudio = AudioDecoder.decodeToMonoPcm(context, Uri.fromFile(temp))
+                    detectedFormat = "Decoded via MediaCodec"
+                } catch (_: Exception) {
+                    // Throw original error with friendly message
+                    throw e
+                }
+            }
+        }
+
+        val validAudio = requireNotNull(loadedAudio) { "Unable to decode audio format. Please check if file is valid." }
+
+        // Always normalize and save to a clean, canonical PCM 16-bit mono WAV file
+        // This ensures that RunPipeline.run() and AudioPlayer.play() ALWAYS succeed without format errors!
+        val canonicalWav = File.createTempFile("signalchain-canonical-", ".wav", context.cacheDir)
+        try {
+            WavWriter.write(canonicalWav.absolutePath, validAudio.samples, validAudio.sampleRate)
+            val duration = validAudio.samples.size.toFloat() / validAudio.sampleRate
+
+            SelectedAudioInfo(
+                name = name,
+                sizeBytes = actualSize,
+                format = detectedFormat,
+                sampleRate = validAudio.sampleRate,
+                durationSec = duration,
+                samples = validAudio.samples,
+                filePath = canonicalWav.absolutePath
+            )
+        } catch (e: Exception) {
+            canonicalWav.delete()
+            throw e
+        }
+    } finally {
+        temp.delete()
     }
+}
 
-    val validAudio = requireNotNull(loadedAudio) { "Unable to decode audio format. Please check if file is valid." }
-
-    // Always normalize and save to a clean, canonical PCM 16-bit mono WAV file
-    // This ensures that RunPipeline.run() and AudioPlayer.play() ALWAYS succeed without format errors!
-    val canonicalWav = File.createTempFile("signalchain-canonical-", ".wav", context.cacheDir)
-    WavWriter.write(canonicalWav.absolutePath, validAudio.samples, validAudio.sampleRate)
-    val duration = validAudio.samples.size.toFloat() / validAudio.sampleRate
-
-    SelectedAudioInfo(
-        name = name,
-        sizeBytes = actualSize,
-        format = detectedFormat,
-        sampleRate = validAudio.sampleRate,
-        durationSec = duration,
-        samples = validAudio.samples,
-        filePath = canonicalWav.absolutePath
-    )
+/** Copies at most [maxBytes] to [out], rejecting the stream before it can exceed the cap on disk. */
+internal fun copyWithSizeLimit(input: InputStream, out: OutputStream, maxBytes: Long) {
+    val buffer = ByteArray(64 * 1024)
+    var total = 0L
+    while (true) {
+        val read = input.read(buffer)
+        if (read == -1) break
+        total += read
+        check(total <= maxBytes) { "File is larger than the 50 MB limit." }
+        out.write(buffer, 0, read)
+    }
 }
 
 fun queryFileMetadata(context: Context, uri: Uri): Pair<String, Long> {

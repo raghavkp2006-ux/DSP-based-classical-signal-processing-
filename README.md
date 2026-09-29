@@ -1,74 +1,108 @@
-# SignalChain — Autonomous Speech Enhancement Agent
+# SignalChain
 
-SignalChain listens to noisy audio, measures its conditions, selects an enhancement strategy, improves the signal, transcribes it, and records the result.
+SignalChain is a native Android app that analyzes noisy audio, chooses an enhancement strategy, and processes the audio entirely on-device. It combines a classical DSP pipeline with a CNN post-filter, with an SNR-aware routing agent deciding how the stages are applied. Audio is not uploaded to a server, and the root-level Python code is not a separate running product anymore: it is the offline training and evaluation toolchain used to build and validate the model shipped in the Android app.
 
-## Features
+## Project structure
 
-- **Classical DSP:** pre-emphasis, VAD, noise PSD, spectral subtraction, adaptive Wiener filtering, de-emphasis, voice EQ, compression, normalization, and SNR measurement.
-- **Rule-based decision agent:** estimates SNR, noise stationarity, and speech activity, then selects an explainable processing policy.
-- **Trained ML post-filter:** compact CNN spectral-mask denoiser trained with synthetic noisy/clean speech pairs.
-- **Whisper STT:** optional raw-versus-enhanced transcription using Whisper Base.
-- **Self-evaluation:** STOI-based scoring and decision logging for ablation studies.
-- **Flask dashboard:** upload audio, inspect the decision, listen to both signals, and view waveform, spectrogram, PSD, and VAD results.
+The repository has two main pieces:
 
-## Run
+- `signalchain-android/` — the current app that users install and run. Its bundled ONNX model and Kotlin implementation perform inference and audio processing on the device.
+- The root-level Python files — including `dsp_pipeline.py`, `train_denoiser.py`, `self_eval.py`, `ablation_runner.py`, `make_ablation_testset.py`, and `export_onnx.py` — form the offline training, export, and evaluation toolchain for the CNN post-filter. They are developer tools for retraining and validating the Android model, not a live web app or service.
 
-```powershell
+## Android app
+
+The current Android version is `0.2.0-rc1`.
+
+### Requirements
+
+- JDK 17
+- Android SDK with the required command-line tools; Android Studio is not required
+- A physical Android device or emulator running API 26 or newer
+- `adb` available on your `PATH` for installation to a connected device
+
+### Build a debug APK
+
+From the repository root:
+
+```bash
+cd signalchain-android
+./gradlew assembleDebug
+```
+
+On Windows PowerShell, use `./gradlew.bat assembleDebug` if needed. The APK is written to:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+Install it on a connected device or emulator with:
+
+```bash
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+`assembleRelease` is not required for local development or testing. A release build requires a local keystore configured in `signalchain-android/local.properties`; `signalchain-android/local.properties.template` lists the required keys.
+
+### Run the JVM tests
+
+The test suite covers the Android DSP stages and the SNR-aware decision agent, along with the ONNX denoiser math and pipeline/UI helpers. The tests are under `signalchain-android/app/src/test/java/com/signalchain/app/` and do not require a device:
+
+```bash
+cd signalchain-android
+./gradlew test
+```
+
+## Train and evaluate the CNN
+
+These commands are for the offline Python toolchain, not for running the Android app. From the repository root, install the dependencies in a suitable Python environment:
+
+```bash
 python -m pip install -r requirements.txt
-python app.py
 ```
 
-Open `http://127.0.0.1:5000`.
+### Train on LibriSpeech `dev-clean`
 
-By default, debug mode is **off** and the server binds to `127.0.0.1:5000`. For local development with auto-reload, set `FLASK_DEBUG=1`. To change the port, set the `PORT` environment variable.
+Point `--data` at the directory containing the LibriSpeech `dev-clean` FLAC files:
 
-### Environment variables
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `FLASK_DEBUG` | `0` | Set to `1` for development auto-reload |
-| `PORT` | `5000` | Server port |
-| `MAX_AUDIO_SECONDS` | `600` | Max decoded audio duration (seconds) |
-| `PIPELINE_TIMEOUT_SECONDS` | `60` | Wall-clock timeout for the pipeline |
-| `FILE_RETENTION_SECONDS` | `3600` | Auto-cleanup age for upload/output files |
-| `PROCESS_RATE_LIMIT` | `10 per minute` | Rate limit on `/process` endpoint |
-
-## Train the ML post-filter
-
-Use clean `.flac` speech such as LibriSpeech `dev-clean`:
-
-```powershell
-python train_denoiser.py --data "C:\path\to\LibriSpeech\dev-clean" --epochs 8 --steps-per-epoch 500
+```bash
+python train_denoiser.py --data "C:\\path\\to\\LibriSpeech\\dev-clean" --epochs 8 --steps-per-epoch 500
 ```
 
-The training script saves two files:
-- `models/spectral_mask_denoiser.pt` — model weights only (loaded with `weights_only=True`)
-- `models/spectral_mask_denoiser.json` — hyperparameter metadata sidecar
+By default, the best checkpoint is saved as `models/spectral_mask_denoiser.pt`, with metadata in the matching JSON sidecar.
 
-Both are tracked in git (the checkpoint is ~50KB, small enough to not need Git LFS).
+### Create an evaluation set and run ablations
 
-## Layout
+Create the deterministic held-out noisy set, then evaluate the unprocessed baseline, DSP-only pipeline, DSP plus CNN, and agent configurations:
 
-- `dsp_pipeline.py` — enhancement pipeline and tolerant MPEG decoding
-- `agent_analyzer.py`, `decision_agent.py` — analysis and autonomous policy
-- `trained_ml_denoiser.py`, `train_denoiser.py` — CNN inference and training
-- `ml_postfilter.py`, `stt_module.py`, `self_eval.py` — ML, STT, and evaluation modules
-- `app.py`, `templates/` — Flask dashboard
+```bash
+python make_ablation_testset.py --data "C:\\path\\to\\LibriSpeech\\dev-clean"
+python ablation_runner.py --metadata ablation_testset/metadata.csv --output ablation_output
+```
 
-The FFmpeg fallback can recover many partially damaged MP3/MPEG/WhatsApp recordings. Reference-based STOI requires the clean original alongside each noisy test clip.
+Use `--limit` with `ablation_runner.py` for a smaller pilot run. The runner writes `ablation_results.csv`, `ablation_summary.csv`, and plots under the selected output directory.
 
-## Evaluation metric
+### Export the model for Android
 
-This environment uses **STOI-only** reporting. PESQ is unavailable because its native extension requires Microsoft C++ Build Tools; all reported quality metrics and ablation conclusions are therefore STOI-based.
+After training, export and numerically validate the checkpoint:
 
-## Final validated results
+```bash
+python export_onnx.py
+```
 
-The final ablation uses the retrained DSP-aware ML checkpoint. `dsp_ml` significantly
-outperforms `dsp_only` on STOI (p=0.000146), and the autonomous `agent` also significantly
-outperforms `dsp_only` on STOI (p=0.000231). Segmental SNR improvement alone is not a
-reliable quality proxy: it rewarded an earlier checkpoint that suppressed speech energy
-indiscriminately, so STOI is the primary reported metric.
+This reads `models/spectral_mask_denoiser.pt` and writes `models/spectral_mask_denoiser.onnx`. Copy the resulting file to the Android asset path below so the app can load it at runtime:
 
-The remaining limitation is that the agent still trails the unprocessed baseline on STOI
-(0.822 vs 0.891), likely near the practical ceiling for these DSP stages without further
-hurting intelligibility.
+```text
+signalchain-android/app/src/main/assets/models/spectral_mask_denoiser.onnx
+```
+
+That asset path is already present in the current checkout.
+
+## Current status and limitations
+
+- STOI is the only objective metric currently reported. PESQ is unavailable because the current environment lacks the required native build tooling.
+- In the current stored full ablation report (40 held-out conditions), the unprocessed baseline has aggregate STOI `0.8910`, while the full agent has aggregate STOI `0.8219`. The full agent therefore still trails the unprocessed baseline on aggregate STOI.
+- Real-time or streaming processing is out of scope; the app currently processes complete audio files.
+- Whisper/STT integration is out of scope for the Android app.
+- iOS support is out of scope.
+
+The Python scripts and stored evaluation artifacts are useful for retraining and further investigation, but they do not change the fact that the shipping product is the Android app.

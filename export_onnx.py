@@ -1,6 +1,7 @@
 """Export the trained spectral-mask denoiser and validate ONNX numerics."""
 from pathlib import Path
 import numpy as np
+import onnx
 import torch
 import onnxruntime as ort
 
@@ -32,6 +33,16 @@ def main() -> None:
         opset_version=17,
         do_constant_folding=True,
     )
+
+    # Keep this small model self-contained so ONNX Runtime can load it from
+    # Android assets, where the model is supplied as an in-memory byte array.
+    # Loading external data first also supports exports from torch versions
+    # that still emit a companion .onnx.data file by default.
+    onnx_model = onnx.load_model(OUTPUT, load_external_data=True)
+    onnx.save_model(onnx_model, OUTPUT, save_as_external_data=False)
+    external_data = OUTPUT.with_name(OUTPUT.name + ".data")
+    if external_data.exists():
+        external_data.unlink()
 
     session = ort.InferenceSession(str(OUTPUT), providers=["CPUExecutionProvider"])
     onnx_output = session.run(["mask"], {"features": example.numpy()})[0]

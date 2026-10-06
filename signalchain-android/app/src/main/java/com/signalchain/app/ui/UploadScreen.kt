@@ -98,7 +98,7 @@ fun UploadScreen(
                 val prepared = loadAndPrepareAudio(context, uri)
                 onAudioSelected(prepared)
             } catch (e: Exception) {
-                android.util.Log.e("SignalChain", "Failed to read audio file", e)
+                android.util.Log.e("SignalChain", "Failed to read selected audio file")
                 snackbarHostState.showSnackbar(
                     message = e.toUserFacingError().userMessage
                 )
@@ -633,6 +633,9 @@ fun UploadScreen(
                                             )
                                             val result = audioRecorder.getResult()
                                             if (result != null && result.samples.isNotEmpty()) {
+                                                if (result.durationSec >= AudioRecorder.MAX_DURATION_SECONDS) {
+                                                    snackbarHostState.showSnackbar("Recording stopped at the 10-minute limit")
+                                                }
                                                 onAudioSelected(
                                                     SelectedAudioInfo(
                                                         name = "Mic Recording",
@@ -648,7 +651,7 @@ fun UploadScreen(
                                                 snackbarHostState.showSnackbar("Recording was too short or empty")
                                             }
                                         } catch (e: Exception) {
-                                            android.util.Log.e("SignalChain", "Recording failed", e)
+                                            android.util.Log.e("SignalChain", "Microphone recording failed")
                                             snackbarHostState.showSnackbar(
                                                 e.toUserFacingError().userMessage
                                             )

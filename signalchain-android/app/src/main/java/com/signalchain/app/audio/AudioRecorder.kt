@@ -29,6 +29,7 @@ class AudioRecorder {
 
     companion object {
         const val DEFAULT_SAMPLE_RATE = 16000
+        const val MAX_DURATION_SECONDS = 10 * 60
     }
 
     private var recorder: AudioRecord? = null
@@ -69,18 +70,21 @@ class AudioRecorder {
 
             val shortBuffer = ShortArray(1024)
             val allSamples = mutableListOf<Float>()
+            val maxSamples = sampleRate * MAX_DURATION_SECONDS
             isRecording = true
 
             try {
                 recorder?.startRecording()
-                while (isRecording && isActive) {
-                    val read = recorder?.read(shortBuffer, 0, shortBuffer.size) ?: -1
+                while (isRecording && isActive && allSamples.size < maxSamples) {
+                    val readSize = minOf(shortBuffer.size, maxSamples - allSamples.size)
+                    val read = recorder?.read(shortBuffer, 0, readSize) ?: -1
                     if (read > 0) {
                         for (i in 0 until read) {
                             allSamples.add(shortBuffer[i] / 32768f)
                         }
                     }
                 }
+                if (allSamples.size >= maxSamples) isRecording = false
             } finally {
                 try { recorder?.stop() } catch (_: Exception) {}
                 recorder?.release()

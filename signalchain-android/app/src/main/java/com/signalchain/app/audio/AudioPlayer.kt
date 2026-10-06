@@ -65,7 +65,7 @@ class AudioPlayer {
             mp.prepare()
             mp.start()
         } catch (e: Exception) {
-            android.util.Log.w("SignalChainAudioPlayer", "MediaPlayer failed, trying AudioTrack fallback", e)
+            android.util.Log.w("SignalChainAudioPlayer", "MediaPlayer failed; trying AudioTrack fallback")
             stop()
             playViaAudioTrack(file, onError, onCompletion)
         }
@@ -201,7 +201,7 @@ class AudioPlayer {
                 }
             } catch (e: Exception) {
                 if (isActive) {
-                    android.util.Log.e("SignalChainAudioPlayer", "AudioTrack playback error", e)
+                    android.util.Log.e("SignalChainAudioPlayer", "AudioTrack playback error")
                     withContext(Dispatchers.Main) { onError(e.toUserFacingError().userMessage) }
                 }
             } finally {

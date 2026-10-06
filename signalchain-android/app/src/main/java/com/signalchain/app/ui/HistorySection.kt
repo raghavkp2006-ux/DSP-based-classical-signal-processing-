@@ -18,6 +18,7 @@ fun HistorySection(
     history: List<RunHistoryItem>,
     activeResultPath: String?,
     onItemSelected: (RunHistoryItem) -> Unit,
+    onClearHistory: () -> Unit,
 ) {
     if (history.isEmpty()) return
 
@@ -32,17 +33,20 @@ fun HistorySection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh
-            ) {
-                Text(
-                    text = "${history.size} run${if (history.size != 1) "s" else ""}",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Text(
+                        text = "${history.size} run${if (history.size != 1) "s" else ""}",
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                TextButton(onClick = onClearHistory) { Text("Clear history") }
             }
         }
 

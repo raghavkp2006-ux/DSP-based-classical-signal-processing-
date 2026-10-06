@@ -1,9 +1,11 @@
 package com.signalchain.app.ui
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.signalchain.app.audio.AudioDecoder
+import com.signalchain.app.audio.AudioRecorder
 import com.signalchain.app.audio.WavLoader
 import com.signalchain.app.audio.WavWriter
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +28,9 @@ suspend fun loadAndPrepareAudio(context: Context, uri: Uri): SelectedAudioInfo =
     if (size > 0) {
         require(size <= maxBytes) { "File is larger than the 50 MB limit." }
     }
+
+    // Duration metadata is checked before staging or decoding the selected media.
+    validateAudioDuration(queryAudioDurationMs(context, uri))
 
     val temp = File.createTempFile("signalchain-input-", ".wav", context.cacheDir)
     try {
@@ -50,7 +55,7 @@ suspend fun loadAndPrepareAudio(context: Context, uri: Uri): SelectedAudioInfo =
                 loadedAudio = WavLoader.load(temp.absolutePath)
                 detectedFormat = "PCM WAV (Native)"
             } catch (e: Exception) {
-                android.util.Log.w("SignalChain", "WavLoader could not parse RIFF as standard PCM WAV, falling back to MediaCodec decoder", e)
+                android.util.Log.w("SignalChain", "WAV parser rejected the selected file; using MediaCodec fallback")
             }
         }
 
@@ -95,6 +100,27 @@ suspend fun loadAndPrepareAudio(context: Context, uri: Uri): SelectedAudioInfo =
         }
     } finally {
         temp.delete()
+    }
+}
+
+internal fun validateAudioDuration(durationMs: Long?) {
+    require(durationMs != null && durationMs >= 0) {
+        "Unable to verify audio duration before decoding. Choose a file with readable duration metadata."
+    }
+    require(durationMs <= AudioRecorder.MAX_DURATION_SECONDS * 1_000L) {
+        "Audio duration exceeds the 10-minute limit. Choose a shorter clip."
+    }
+}
+
+private fun queryAudioDurationMs(context: Context, uri: Uri): Long? {
+    val retriever = MediaMetadataRetriever()
+    return try {
+        retriever.setDataSource(context, uri)
+        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+    } catch (_: Exception) {
+        null
+    } finally {
+        try { retriever.release() } catch (_: Exception) { }
     }
 }
 

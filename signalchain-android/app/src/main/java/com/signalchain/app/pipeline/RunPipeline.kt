@@ -48,8 +48,15 @@ class RunPipeline(private val context: Context) {
             warningMsg = postFilter.warning
         }
         onProgress("Finalizing")
-        val out = File(context.cacheDir, "signalchain-enhanced-${System.currentTimeMillis()}.wav")
-        WavWriter.write(out.absolutePath, normalized.audio, raw.sampleRate)
+        val exportDir = File(context.cacheDir, "exports")
+        check(exportDir.exists() || exportDir.mkdirs()) { "Unable to create export directory" }
+        val out = File(exportDir, "signalchain-enhanced-${System.currentTimeMillis()}.wav")
+        try {
+            WavWriter.write(out.absolutePath, normalized.audio, raw.sampleRate)
+        } catch (e: Exception) {
+            out.delete()
+            throw e
+        }
         return PipelineResult(
             d.mode,
             d.rationale,

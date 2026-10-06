@@ -30,6 +30,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CacheFileCleanup.cleanupStaleOnStartup(cacheDir)
         setContent {
             MaterialTheme {
                 Surface(
@@ -92,7 +93,7 @@ fun SignalChainScreen() {
                     snackbarHostState.showSnackbar(res.warning)
                 }
             } catch (e: Exception) {
-                android.util.Log.e("SignalChain", "Pipeline enhancement failed", e)
+                android.util.Log.e("SignalChain", "Pipeline enhancement failed")
                 snackbarHostState.showSnackbar(
                     message = e.toUserFacingError().userMessage
                 )
@@ -157,6 +158,10 @@ fun SignalChainScreen() {
                     audioRecorder = audioRecorder,
                     snackbarHostState = snackbarHostState,
                     onAudioSelected = { audio ->
+                        val previousPath = selectedAudio?.filePath
+                        if (previousPath != null && history.none { it.fileInfo.filePath == previousPath }) {
+                            CacheFileCleanup.deleteIfUnreferenced(context.cacheDir, previousPath)
+                        }
                         selectedAudio = audio
                         activeResult = null
                     },
@@ -203,6 +208,14 @@ fun SignalChainScreen() {
                             playingTrack = PlayingTrack.NONE
                             selectedAudio = item.fileInfo
                             activeResult = item.result
+                        },
+                        onClearHistory = {
+                            player.stop()
+                            playingTrack = PlayingTrack.NONE
+                            CacheFileCleanup.clearHistoryArtifacts(context.cacheDir)
+                            history.clear()
+                            activeResult = null
+                            selectedAudio = null
                         },
                     )
                 }

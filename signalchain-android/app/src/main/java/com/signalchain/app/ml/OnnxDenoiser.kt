@@ -119,7 +119,7 @@ internal object MlPostFilter {
     fun <T> applyOrFallback(dspResult: T, applyFilter: () -> T): MlPostFilterResult<T> = try {
         MlPostFilterResult(applyFilter(), null)
     } catch (error: Exception) {
-        Log.e("SignalChain", "ML post-filter failed, falling back to DSP-only output", error)
+        Log.e("SignalChain", "ML post-filter failed, falling back to DSP-only output")
         MlPostFilterResult(dspResult, UserFacingError.ML_FALLBACK.userMessage)
     }
 }

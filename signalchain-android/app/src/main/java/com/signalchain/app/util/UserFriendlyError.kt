@@ -3,6 +3,7 @@ package com.signalchain.app.util
 enum class UserFacingError(val userMessage: String) {
     UNSUPPORTED_FORMAT("Unsupported audio format — try a standard WAV, MP3, or M4A file."),
     FILE_TOO_LARGE("The selected file is too large to process on-device. Please try a shorter clip."),
+    AUDIO_DURATION_LIMIT("Audio must have readable duration metadata and be 10 minutes or shorter."),
     DECODE_FAILED("Couldn't read that audio file — the file might be corrupted or in an unsupported format."),
     PROCESSING_TIMED_OUT("Processing took too long and timed out. Please try a shorter audio clip."),
     ML_FALLBACK("Enhanced with classical processing only (ML step unavailable)."),
@@ -18,6 +19,7 @@ fun Exception.toUserFacingError(): UserFacingError {
     return when {
         msg.contains("format") || msg.contains("mime") -> UserFacingError.UNSUPPORTED_FORMAT
         msg.contains("large") || msg.contains("memory") || msg.contains("alloc") -> UserFacingError.FILE_TOO_LARGE
+        msg.contains("duration") -> UserFacingError.AUDIO_DURATION_LIMIT
         msg.contains("decode") || msg.contains("extractor") || msg.contains("riff") -> UserFacingError.DECODE_FAILED
         msg.contains("timeout") -> UserFacingError.PROCESSING_TIMED_OUT
         msg.contains("record") || msg.contains("mic") -> UserFacingError.RECORDING_FAILED

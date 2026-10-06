@@ -321,7 +321,7 @@ fun ResultsScreen(
                     }
                     context.startActivity(Intent.createChooser(shareIntent, "Share or Save Enhanced Audio"))
                 } catch (e: Exception) {
-                    android.util.Log.e("SignalChain", "Failed to share file", e)
+                    android.util.Log.e("SignalChain", "Failed to share enhanced audio")
                     scope.launch {
                         snackbarHostState.showSnackbar(e.toUserFacingError().userMessage)
                     }

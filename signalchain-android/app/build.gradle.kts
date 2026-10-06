@@ -73,6 +73,8 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+
+    sourceSets.getByName("test").resources.srcDir("src/main/assets")
 }
 
 dependencies {
@@ -89,5 +91,6 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.18.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.microsoft.onnxruntime:onnxruntime:1.18.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

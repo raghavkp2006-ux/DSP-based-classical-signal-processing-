@@ -1,5 +1,5 @@
 package com.signalchain.app.pipeline
-import com.signalchain.app.agent.*;import com.signalchain.app.audio.*;import com.signalchain.app.dsp.*;import com.signalchain.app.ml.OnnxDenoiser;import android.content.Context;import java.io.File
+import com.signalchain.app.agent.*;import com.signalchain.app.audio.*;import com.signalchain.app.dsp.*;import com.signalchain.app.ml.MlPostFilter;import com.signalchain.app.ml.OnnxDenoiser;import android.content.Context;import java.io.File
 data class PipelineResult(
     val mode: String,
     val rationale: String,
@@ -39,12 +39,13 @@ class RunPipeline(private val context: Context) {
         onProgress("Running ML post-filter")
         var warningMsg: String? = null
         if (d.params.useMlPostfilter) {
-            try {
-                normalized = Compressor.normalizeAndLimit(OnnxDenoiser(context).apply(normalized.audio, raw.sampleRate), x)
-            } catch (e: Exception) {
-                android.util.Log.e("SignalChain", "ML post-filter failed, falling back to DSP-only output", e)
-                warningMsg = com.signalchain.app.util.UserFacingError.ML_FALLBACK.userMessage
+            val postFilter = MlPostFilter.applyOrFallback(normalized) {
+                Compressor.normalizeAndLimit(
+                    OnnxDenoiser(context).use { it.apply(normalized.audio, raw.sampleRate) }, x
+                )
             }
+            normalized = postFilter.value
+            warningMsg = postFilter.warning
         }
         onProgress("Finalizing")
         val out = File(context.cacheDir, "signalchain-enhanced-${System.currentTimeMillis()}.wav")

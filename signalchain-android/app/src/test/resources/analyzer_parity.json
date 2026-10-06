@@ -1,0 +1,344 @@
+{
+  "synthetic_goldens": {
+    "gated_broadband_speech": {
+      "noise_stationarity_cv": 0.0352,
+      "snr_db": 8.36,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    "quiet_tonal_noise": {
+      "noise_stationarity_cv": 0.0073,
+      "snr_db": -19.93,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    "steady_tone_speech": {
+      "noise_stationarity_cv": 0.2288,
+      "snr_db": 17.39,
+      "speech_activity_ratio": 0.6667,
+      "stationary_noise": true
+    }
+  },
+  "testset": [
+    {
+      "file": "holdout_00_7976-110124-0013_brown_hum_+00dB.wav",
+      "noise_stationarity_cv": 2.4303,
+      "segmental_snr_db": 7.13,
+      "snr_db": 14.52,
+      "speech_activity_ratio": 0.6577,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_brown_hum_+05dB.wav",
+      "noise_stationarity_cv": 2.4351,
+      "segmental_snr_db": 9.54,
+      "snr_db": 17.62,
+      "speech_activity_ratio": 0.6611,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_brown_hum_+10dB.wav",
+      "noise_stationarity_cv": 2.4874,
+      "segmental_snr_db": 11.92,
+      "snr_db": 21.59,
+      "speech_activity_ratio": 0.6544,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_brown_hum_+15dB.wav",
+      "noise_stationarity_cv": 2.6224,
+      "segmental_snr_db": 13.94,
+      "snr_db": 25.92,
+      "speech_activity_ratio": 0.6409,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_brown_hum_-05dB.wav",
+      "noise_stationarity_cv": 2.3691,
+      "segmental_snr_db": 5.64,
+      "snr_db": 12.86,
+      "speech_activity_ratio": 0.6678,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_bursty_+00dB.wav",
+      "noise_stationarity_cv": 0.1934,
+      "segmental_snr_db": 7.22,
+      "snr_db": 1.56,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_bursty_+05dB.wav",
+      "noise_stationarity_cv": 0.2646,
+      "segmental_snr_db": 11.45,
+      "snr_db": 6.02,
+      "speech_activity_ratio": 0.0101,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_bursty_+10dB.wav",
+      "noise_stationarity_cv": 0.309,
+      "segmental_snr_db": 4.55,
+      "snr_db": 10.8,
+      "speech_activity_ratio": 0.1544,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_bursty_+15dB.wav",
+      "noise_stationarity_cv": 0.3607,
+      "segmental_snr_db": 7.77,
+      "snr_db": 15.69,
+      "speech_activity_ratio": 0.3188,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_bursty_-05dB.wav",
+      "noise_stationarity_cv": 0.1896,
+      "segmental_snr_db": 3.99,
+      "snr_db": -2.12,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_tonal_+00dB.wav",
+      "noise_stationarity_cv": 0.1663,
+      "segmental_snr_db": 6.68,
+      "snr_db": 0.58,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_tonal_+05dB.wav",
+      "noise_stationarity_cv": 0.3228,
+      "segmental_snr_db": 10.89,
+      "snr_db": 5.32,
+      "speech_activity_ratio": 0.0235,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_tonal_+10dB.wav",
+      "noise_stationarity_cv": 0.3503,
+      "segmental_snr_db": 5.2,
+      "snr_db": 10.21,
+      "speech_activity_ratio": 0.1946,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_tonal_+15dB.wav",
+      "noise_stationarity_cv": 0.3752,
+      "segmental_snr_db": 9.53,
+      "snr_db": 15.14,
+      "speech_activity_ratio": 0.3725,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_tonal_-05dB.wav",
+      "noise_stationarity_cv": 0.0895,
+      "segmental_snr_db": 3.46,
+      "snr_db": -3.79,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_white_+00dB.wav",
+      "noise_stationarity_cv": 0.1359,
+      "segmental_snr_db": 6.63,
+      "snr_db": 0.55,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_white_+05dB.wav",
+      "noise_stationarity_cv": 0.2554,
+      "segmental_snr_db": 10.88,
+      "snr_db": 5.34,
+      "speech_activity_ratio": 0.0101,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_white_+10dB.wav",
+      "noise_stationarity_cv": 0.3769,
+      "segmental_snr_db": 4.25,
+      "snr_db": 10.26,
+      "speech_activity_ratio": 0.1074,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_white_+15dB.wav",
+      "noise_stationarity_cv": 0.3738,
+      "segmental_snr_db": 7.17,
+      "snr_db": 15.22,
+      "speech_activity_ratio": 0.2953,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_00_7976-110124-0013_white_-05dB.wav",
+      "noise_stationarity_cv": 0.0975,
+      "segmental_snr_db": 3.41,
+      "snr_db": -3.81,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_brown_hum_+00dB.wav",
+      "noise_stationarity_cv": 1.0435,
+      "segmental_snr_db": 6.41,
+      "snr_db": 10.2,
+      "speech_activity_ratio": 0.7987,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_brown_hum_+05dB.wav",
+      "noise_stationarity_cv": 1.3481,
+      "segmental_snr_db": 8.44,
+      "snr_db": 12.36,
+      "speech_activity_ratio": 0.7987,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_brown_hum_+10dB.wav",
+      "noise_stationarity_cv": 1.483,
+      "segmental_snr_db": 10.66,
+      "snr_db": 15.2,
+      "speech_activity_ratio": 0.7987,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_brown_hum_+15dB.wav",
+      "noise_stationarity_cv": 1.5309,
+      "segmental_snr_db": 11.94,
+      "snr_db": 17.83,
+      "speech_activity_ratio": 0.7987,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_brown_hum_-05dB.wav",
+      "noise_stationarity_cv": 0.6762,
+      "segmental_snr_db": 4.92,
+      "snr_db": 9.36,
+      "speech_activity_ratio": 0.7886,
+      "stationary_noise": false
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_bursty_+00dB.wav",
+      "noise_stationarity_cv": 0.2377,
+      "segmental_snr_db": 6.84,
+      "snr_db": 1.23,
+      "speech_activity_ratio": 0.0134,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_bursty_+05dB.wav",
+      "noise_stationarity_cv": 0.3006,
+      "segmental_snr_db": 1.03,
+      "snr_db": 5.44,
+      "speech_activity_ratio": 0.0369,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_bursty_+10dB.wav",
+      "noise_stationarity_cv": 0.3214,
+      "segmental_snr_db": 0.66,
+      "snr_db": 9.93,
+      "speech_activity_ratio": 0.1443,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_bursty_+15dB.wav",
+      "noise_stationarity_cv": 0.3616,
+      "segmental_snr_db": 2.36,
+      "snr_db": 14.26,
+      "speech_activity_ratio": 0.3356,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_bursty_-05dB.wav",
+      "noise_stationarity_cv": 0.2251,
+      "segmental_snr_db": 4.08,
+      "snr_db": -2.09,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_tonal_+00dB.wav",
+      "noise_stationarity_cv": 0.205,
+      "segmental_snr_db": 6.12,
+      "snr_db": 0.01,
+      "speech_activity_ratio": 0.0101,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_tonal_+05dB.wav",
+      "noise_stationarity_cv": 0.3012,
+      "segmental_snr_db": -0.01,
+      "snr_db": 4.87,
+      "speech_activity_ratio": 0.057,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_tonal_+10dB.wav",
+      "noise_stationarity_cv": 0.3365,
+      "segmental_snr_db": 1.19,
+      "snr_db": 9.65,
+      "speech_activity_ratio": 0.1913,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_tonal_+15dB.wav",
+      "noise_stationarity_cv": 0.3947,
+      "segmental_snr_db": 2.36,
+      "snr_db": 14.06,
+      "speech_activity_ratio": 0.4128,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_tonal_-05dB.wav",
+      "noise_stationarity_cv": 0.1181,
+      "segmental_snr_db": 3.07,
+      "snr_db": -4.59,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_white_+00dB.wav",
+      "noise_stationarity_cv": 0.1836,
+      "segmental_snr_db": 6.28,
+      "snr_db": 0.32,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_white_+05dB.wav",
+      "noise_stationarity_cv": 0.2726,
+      "segmental_snr_db": 10.32,
+      "snr_db": 5.02,
+      "speech_activity_ratio": 0.0235,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_white_+10dB.wav",
+      "noise_stationarity_cv": 0.3158,
+      "segmental_snr_db": 1.04,
+      "snr_db": 9.71,
+      "speech_activity_ratio": 0.1174,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_white_+15dB.wav",
+      "noise_stationarity_cv": 0.3555,
+      "segmental_snr_db": 2.16,
+      "snr_db": 14.13,
+      "speech_activity_ratio": 0.3322,
+      "stationary_noise": true
+    },
+    {
+      "file": "holdout_01_8842-302196-0003_white_-05dB.wav",
+      "noise_stationarity_cv": 0.0997,
+      "segmental_snr_db": 3.23,
+      "snr_db": -4.05,
+      "speech_activity_ratio": 0.0,
+      "stationary_noise": true
+    }
+  ]
+}

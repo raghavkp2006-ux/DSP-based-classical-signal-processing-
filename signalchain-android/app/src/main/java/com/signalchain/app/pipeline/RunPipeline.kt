@@ -21,6 +21,12 @@ class RunPipeline(private val context: Context) {
         onProgress("Analyzing signal")
         val a = AudioAnalyzer.analyze(x, raw.sampleRate)
         val d = DecisionAgent.decide(a.snrDb, a.stationaryNoise, a.speechActivityRatio)
+        android.util.Log.d(
+            "SignalChain",
+            "AnalysisResult(snrDb=${a.snrDb}, noiseStationarityCv=${a.noiseStationarityCv}, " +
+                "stationaryNoise=${a.stationaryNoise}, speechActivityRatio=${a.speechActivityRatio}); " +
+                "chosenMode=${d.mode}"
+        )
         onProgress("Reducing noise")
         val pre = PreEmphasis.apply(x, d.params.preEmphCoeff)
         val v = Vad.detect(pre, fp, d.params.vadHangoverFrames)

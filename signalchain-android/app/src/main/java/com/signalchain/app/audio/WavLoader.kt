@@ -7,7 +7,7 @@ import kotlin.math.*
 object WavLoader {
     data class LoadedAudio(val samples: FloatArray, val sampleRate: Int)
 
-    fun load(path: String, targetSampleRate: Int = 0): LoadedAudio {
+    fun load(path: String): LoadedAudio {
         val f = RandomAccessFile(path, "r")
         try {
             // Read and validate RIFF header
@@ -44,8 +44,10 @@ object WavLoader {
                 }
             }
 
-            require(fmt == 1 || fmt == 3) { "Only PCM WAV files are supported." }
-            require(ch > 0 && (bits == 16 || bits == 32)) { "Only PCM16/PCM32 WAV files are supported." }
+            require(ch > 0) { "Audio must have at least 1 channel." }
+            require((fmt == 1 && (bits == 16 || bits == 32)) || (fmt == 3 && bits == 32)) {
+                "Unsupported WAV format: format tag $fmt with $bits bits per sample. Only 16-bit/32-bit PCM and 32-bit float are supported."
+            }
 
             val bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
             val bytesPerFrame = ch * (bits / 8)
@@ -54,7 +56,13 @@ object WavLoader {
             for (i in 0 until frames) {
                 var sum = 0.0
                 for (c in 0 until ch) {
-                    sum += if (bits == 16) bb.short / 32768.0 else bb.float.toDouble()
+                    val sampleVal = when {
+                        fmt == 1 && bits == 16 -> bb.short / 32768.0
+                        fmt == 1 && bits == 32 -> bb.int / 2147483648.0
+                        fmt == 3 && bits == 32 -> bb.float.toDouble()
+                        else -> error("Unsupported WAV format: format=$fmt, bits=$bits")
+                    }
+                    sum += sampleVal
                 }
                 x[i] = (sum / ch).toFloat()
             }

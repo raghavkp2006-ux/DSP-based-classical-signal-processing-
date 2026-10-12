@@ -1,47 +1,34 @@
-# SignalChain Android progress
+# SignalChain Android Progress
 
-## Done
+Branch: `main`
 
-- Added Python/Kotlin analyzer parity reporting and JVM tests for golden synthetic signals and empty-noise handling.
-- Removed repeated VAD energy sorting and ZCR averaging from the per-frame classifier; 10 minutes of 16 kHz audio completes in about 0.60 seconds on this JVM.
-- Added seeded routing coverage for all three policies, in-memory ONNX model constructors, a Python-generated ONNX inference golden, non-16 kHz output-length coverage, and an ML fallback test.
-- Disabled Android backups, limited FileProvider access to `cache/exports/`, added managed cache cleanup at startup, on unreferenced input replacement, and on history clear, and added a pre-decode 10-minute duration check. Microphone capture stops at 10 minutes.
-- Added release smoke-test instructions in `RELEASE_SMOKE_TEST.md`.
-- Added the STT options comparison in root `STT_SPIKE.md`; no speech-to-text dependency was added.
+## Completed (P0 & P1 Release v1.0.0)
 
-## Verified (with SHAs)
+- **P0-1 Filter Corrections (`Eq.kt`)**: Fixed corner frequency calculation (evaluating normalized cutoff in cycles/sample rather than treating Nyquist fraction as cycles/sample), tap count scaling (`oddTaps` for sample rates like 44.1/48 kHz), bandpass center gain normalization matching `scipy.signal.firwin(scale=True)`, and low-pass filter guard. Added `scripts/make_eq_golden.py`, `eq_golden.json`, and `EqTest` verifying golden parity (< 1e-3 max abs error), 16 kHz frequency response (±0.5 dB), and 48 kHz consistency (±1.0 dB).
+- **P0-2 Anti-Aliasing Resampler (`OnnxDenoiser.kt`)**: Replaced linear decimation with windowed-sinc anti-aliasing interpolation/decimation filter with Hann taper. Verified > 60 dB attenuation on out-of-band tones, < 0.01 RMS on 10 kHz tone, and unity passband fidelity.
+- **P0-3 32-bit Integer PCM Decoding (`WavLoader.kt`)**: Corrected WAV decoding to branch on `(fmt, bits)` so 32-bit integer PCM (`fmt=1, bits=32`) is properly scaled by `2^31` rather than misread as IEEE float. Added unit tests for 16-bit, 32-bit int, and 32-bit float WAVs.
+- **P0-4 Stage Diagnostic Dumps (`PipelineStageDumpTest.kt`)**: Automated pipeline stage dump test producing sequential WAV files (`00_input.wav` to `06_normalized.wav`) for listening diagnostics.
+- **P1 Release Hardening**:
+  - Configured release keystore (`signalchain-release.keystore`) and configured `app/build.gradle.kts` to throw `GradleException` if release signing credentials are missing.
+  - Bumped version to `1.0.0` (versionCode `3`).
+  - Added custom adaptive launcher icons (`ic_launcher`, `ic_launcher_round`, foreground vector, background color).
+  - Removed unused `READ_MEDIA_AUDIO` permission from `AndroidManifest.xml` (using Storage Access Framework / `OpenDocument`).
+  - Added `android:configChanges` to `MainActivity` to prevent mid-processing activity recreation on rotation.
+  - Clarified UI metrics with "Segmental SNR (VAD-based)" label in `ResultsScreen`.
+  - Allocated 2048 MB heap to Gradle JVM args to ensure R8 minification completes reliably.
 
-All listed commits are local on `main` and have **not** been pushed to `origin/main`.
+## Verification Status
+
+- `./gradlew test` passes 100% on both debug and release variants.
+- `./gradlew assembleDebug` builds successfully.
+- `./gradlew assembleRelease` builds with R8 shrinking, obfuscation, and release keystore signing.
+- Verified signature via `apksigner verify --print-certs app-release.apk` (SHA-256 fingerprint verified).
+
+## Prior Commit History (Integrated on `origin/main`)
 
 - `e7817cd` — Analyzer Kotlin/Python parity test, runtime analysis log, and explicit empty-noise behavior.
 - `6a07619` — VAD output-preservation tests and linear-time frame classification.
 - `a99c183` — Three decision branches and JVM ONNX inference/fallback coverage.
 - `4a047ba` — Audio cache, FileProvider, duration, and logging privacy fixes.
 - `3efa8ee` — R8 release verification adjustment and owner smoke-test checklist.
-- cf7c862 — STT options spike and progress update.
-- Python parity run: 40 noisy test files. Global SNR min/median/max `-4.59 / 9.68 / 25.92 dB`; CV `0.0895 / 0.3221 / 2.6224`; routes: 18 Full adaptive, 14 Classical DSP, 8 Light touch.
-- Three Python-generated analyzer goldens match Kotlin within `0.02 dB` SNR, `0.0002` CV, and `0.0001` activity ratio. `emptyNoiseHasExplicitNonStationaryResult` asserts `CV = +Infinity` and non-stationary.
-- `optimizedVadPreservesLegacySpeechArraysForThreeSignals` compares all boolean arrays to the pre-optimization implementation. `tenMinuteVadFinishesUnderOneSecond` passed in about `0.60 s`.
-- `seededSyntheticAudioReachesAllThreePolicies` verifies the mode and ML flag for each route. `modelByteConstructorMatchesPythonGoldenAndReturnsFiniteMask` compares 257 ONNX outputs within `1e-4` and checks output lengths at 16 kHz and 12 kHz. `failingModelLoadUsesDspOnlyAudioAndShowsWarning` checks retained DSP samples and a non-null warning.
-- The required `clean test assembleDebug` command passed after the changes: 23 JVM tests, 0 failures. The release build passed with R8 class minification enabled and debug-signing fallback. The APK contains `assets/models/spectral_mask_denoiser.onnx` (46,586 bytes). The Task 1 debug-analysis message is absent from the minified DEX.
-- The device smoke test has not been run; it is for the owner to perform.
-
-### Task 1 root-cause finding
-
-Kotlin and Python `AudioAnalyzer` use the same VAD-derived noise frames, global lower-15%-energy SNR, CV, and `0.55` stationarity threshold. The test set does **not** reproduce “always Full adaptive”: it routes 18 of 40 files there. The confirmed inconsistency is that the UI’s segmental SNR and the decision’s global SNR differ by a median `6.11 dB` and up to `11.98 dB`; they can describe the same recording very differently. Across noise categories, the brown-hum group has median CV `1.95` and 0/10 stationary labels, while bursty, tonal, and white groups have median CVs around `0.26–0.31` and 10/10 stationary labels each. This points to analyzer inputs and noise-frame labels as route drivers, but no physical-phone logs were available to prove why those recordings selected Full adaptive. No thresholds or DSP decision rules were changed.
-
-- `STT_SPIKE.md` recommends a sherpa-onnx tiny prototype for the next spike, subject to APK/model size acceptance and target-phone benchmarking. Latency for direct ONNX Runtime is only a planning estimate. This spike has no app tests because it changes documentation only.
-
-## Open issues
-
-- The owner still needs to run the release APK on a physical phone and check Full adaptive/ML execution, output playback, and sharing.
-- The physical-phone “always Full adaptive” report is not fully explained without the new device log values.
-- The two SNR estimators remain intentionally unchanged; a median `6.11 dB` absolute difference is documented for owner review.
-- No release keystore is configured, so the APK is signed with the debug key.
-- The automatic approval review rejected the requested push to shared `origin/main`; the changes remain in local commits.
-
-## Next
-
-- Run the checklist in `RELEASE_SMOKE_TEST.md` on the phone and share the logged analyzer values for a clip that routes unexpectedly.
-- Review whether the UI’s before-SNR should display the same global SNR that feeds `DecisionAgent`; make any policy change only after owner review.
-- Review and approve the local commit series for pushing to `origin/main`.
+- `f8af4cf` — STT options spike (`STT_SPIKE.md`).

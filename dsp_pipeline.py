@@ -238,8 +238,9 @@ def apply_eq(audio, Fs, eq_gain=1.0):
 
     b_hp = signal.firwin(129, 80 / (Fs / 2), pass_zero=False)
     out = signal.lfilter(b_hp, 1, out)
-    b_lp = signal.firwin(65, min(8000 / (Fs / 2), 0.99))
-    out = signal.lfilter(b_lp, 1, out)
+    if 8000 / (Fs / 2) < 0.99:
+        b_lp = signal.firwin(65, min(8000 / (Fs / 2), 0.99))
+        out = signal.lfilter(b_lp, 1, out)
     return out
 
 

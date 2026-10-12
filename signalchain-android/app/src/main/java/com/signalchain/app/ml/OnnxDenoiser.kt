@@ -29,14 +29,22 @@ class OnnxDenoiser private constructor(modelBytes: ByteArray, @Suppress("UNUSED_
         internal fun resampleLinear(x: FloatArray, srcRate: Int, dstRate: Int): FloatArray {
             if (srcRate == dstRate) return x
             require(srcRate > 0 && dstRate > 0)
-            val ratio = dstRate.toDouble() / srcRate.toDouble()
+            val ratio = dstRate.toDouble() / srcRate
             val outLen = max(1, (x.size * ratio).toInt())
+            val fc = min(1.0, ratio) * 0.95 // anti-alias / anti-image cutoff (fraction of input Nyquist)
+            val w = 16.0 / fc // kernel half-width in input samples
             return FloatArray(outLen) { i ->
-                val srcPos = i / ratio
-                val i0 = srcPos.toInt().coerceIn(0, x.size - 1)
-                val i1 = (i0 + 1).coerceIn(0, x.size - 1)
-                val frac = (srcPos - i0).toFloat()
-                x[i0] * (1 - frac) + x[i1] * frac
+                val t = i / ratio
+                val j0 = max(0, ceil(t - w).toInt())
+                val j1 = min(x.size - 1, floor(t + w).toInt())
+                var acc = 0.0
+                for (j in j0..j1) {
+                    val u = t - j
+                    val z = fc * u
+                    val sinc = if (z == 0.0) 1.0 else sin(Math.PI * z) / (Math.PI * z)
+                    acc += x[j] * fc * sinc * (0.5 + 0.5 * cos(Math.PI * u / w))
+                }
+                acc.toFloat()
             }
         }
 

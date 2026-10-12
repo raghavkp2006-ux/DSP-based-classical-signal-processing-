@@ -20,8 +20,8 @@ android {
         applicationId = "com.signalchain.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2.0-rc1"
+        versionCode = 3
+        versionName = "1.0.0"
     }
 
     signingConfigs {
@@ -33,7 +33,17 @@ android {
                 keyAlias = keystoreProperties.getProperty("RELEASE_KEY_ALIAS")
                 keyPassword = keystoreProperties.getProperty("RELEASE_KEY_PASSWORD")
             } else {
-                logger.warn("Release keystore not found or not configured in local.properties. Falling back to debug signing.")
+                val isReleaseBuildRequested = gradle.startParameter.taskNames.any {
+                    it.contains("Release", ignoreCase = true)
+                }
+                if (isReleaseBuildRequested) {
+                    throw GradleException(
+                        "Release keystore not found or not configured in local.properties. " +
+                        "Cannot assemble release without a valid signing configuration."
+                    )
+                } else {
+                    logger.warn("Release keystore not found or not configured in local.properties. Falling back to debug signing.")
+                }
             }
         }
     }
@@ -50,6 +60,12 @@ android {
             if (storeFileProp != null && file(storeFileProp).exists()) {
                 signingConfig = signingConfigs.getByName("release")
             } else {
+                val isReleaseBuildRequested = gradle.startParameter.taskNames.any {
+                    it.contains("Release", ignoreCase = true)
+                }
+                if (isReleaseBuildRequested) {
+                    throw GradleException("Release keystore not found. Refusing to produce debug-signed release APK.")
+                }
                 signingConfig = signingConfigs.getByName("debug")
             }
         }

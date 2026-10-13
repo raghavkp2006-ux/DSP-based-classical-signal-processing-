@@ -36,11 +36,11 @@ def decide(snr_db: float, stationary_noise: bool, activity_ratio: float) -> dict
         params.update(
             alpha=1.45, beta=0.07, gain_smooth=0.82, use_ml_postfilter=True,
             use_eq=True, eq_gain=1.0,
-            compression_ratio=2.0, compression_makeup_db=10.0,
+            compression_ratio=1.0, compression_makeup_db=0.0,
         )
         mode = "Full adaptive"
         rationale = ("Low SNR or non-stationary noise: stronger adaptive filtering, "
-                     "ML post-filter, full EQ, and moderate compression applied.")
+                     "ML post-filter, and full EQ applied.")
     if activity_ratio < 0.30:
         params["vad_hangover_frames"] = 5
         rationale += " Sparse speech detected; VAD hangover is widened."

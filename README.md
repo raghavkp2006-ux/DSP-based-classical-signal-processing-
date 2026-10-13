@@ -99,6 +99,17 @@ That asset path is already present in the current checkout.
 
 ## Current status and limitations
 
+### Known limitations (v1.0.0)
+- Room reverb/echo in the source recording is not removed. SignalChain targets additive
+  noise (hiss, crowd, hum, fans); dereverberation needs a different model and is planned
+  for a later version.
+- No speech-to-text yet (planned for v1.1).
+- Objective results (STOI) were measured on the Python reference pipeline. The Kotlin
+  on-device chain was validated by golden-file parity tests and listening, not STOI.
+  In the stored ablation the full agent (0.822 STOI) still trails the unprocessed
+  baseline (0.891) on aggregate; subjective noise reduction is the intended benefit.
+- Release APK is ~65 MB (ONNX Runtime native libraries for several CPU architectures).
+
 - The Kotlin DSP EQ implementation has been corrected to strictly match the Python reference filter response across all sample rates, backed by golden numerical parity and frequency sweep tests.
 - STOI is the only objective metric currently reported. PESQ is unavailable because the current environment lacks the required native build tooling.
 - In the current stored full ablation report (40 held-out conditions), the unprocessed baseline has aggregate STOI `0.8910`, while the full agent has aggregate STOI `0.8219`. The full agent therefore still trails the unprocessed baseline on aggregate STOI.

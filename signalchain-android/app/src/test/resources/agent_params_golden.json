@@ -1,0 +1,1282 @@
+[
+  {
+    "snr": -5,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": -5,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 0,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 4.9,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 5,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 10,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Classical DSP",
+    "rationale": "Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.2,
+      "beta": 0.1,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 0.5,
+      "compression_ratio": 1.8,
+      "compression_makeup_db": 6.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 5,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Full adaptive",
+    "rationale": "Low SNR or non-stationary noise: stronger adaptive filtering, ML post-filter, and full EQ applied.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.45,
+      "beta": 0.07,
+      "gain_smooth": 0.82,
+      "use_spectral_subtraction": true,
+      "use_ml_postfilter": true,
+      "vad_hangover_frames": 0,
+      "use_eq": true,
+      "eq_gain": 1.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 15.1,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": true,
+    "activity": 0.1,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": true,
+    "activity": 0.29,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": true,
+    "activity": 0.3,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": true,
+    "activity": 0.8,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": false,
+    "activity": 0.1,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": false,
+    "activity": 0.29,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal. Sparse speech detected; VAD hangover is widened.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 5,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": false,
+    "activity": 0.3,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  },
+  {
+    "snr": 25,
+    "stationary": false,
+    "activity": 0.8,
+    "mode": "Light touch",
+    "rationale": "High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.",
+    "params": {
+      "pre_emph_coeff": 0.97,
+      "alpha": 1.0,
+      "beta": 1.0,
+      "gain_smooth": 0.7,
+      "use_spectral_subtraction": false,
+      "use_ml_postfilter": false,
+      "vad_hangover_frames": 0,
+      "use_eq": false,
+      "eq_gain": 0.0,
+      "compression_ratio": 1.0,
+      "compression_makeup_db": 0.0
+    }
+  }
+]

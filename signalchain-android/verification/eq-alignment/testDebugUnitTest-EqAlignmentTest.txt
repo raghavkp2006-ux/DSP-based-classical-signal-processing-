@@ -1,0 +1,28 @@
+Independent EQ reference: cases=18, maxAbsError=2.3841858E-7, tolerance=1e-5
+HEADROOM sr=16000 gain=0.6 signal=0 eqPeak=1.5557777 compressorPeak=2.9538922 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008715721566904198
+HEADROOM sr=16000 gain=0.6 signal=1 eqPeak=1.1962259 compressorPeak=2.1734633 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008715721566904198
+HEADROOM sr=16000 gain=0.6 signal=2 eqPeak=1.0715917 compressorPeak=2.1285684 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008715721566904198
+HEADROOM sr=16000 gain=1.0 signal=0 eqPeak=1.9221046 compressorPeak=1.9221046 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.014176046622113051
+HEADROOM sr=16000 gain=1.0 signal=1 eqPeak=1.408875 compressorPeak=1.408875 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.014176046622113051
+HEADROOM sr=16000 gain=1.0 signal=2 eqPeak=1.1326306 compressorPeak=1.1326306 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.014176046622113051
+HEADROOM sr=44100 gain=0.6 signal=0 eqPeak=1.5558255 compressorPeak=2.9765346 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.005348503056227804
+HEADROOM sr=44100 gain=0.6 signal=1 eqPeak=1.2482561 compressorPeak=2.3102887 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.005348503056227804
+HEADROOM sr=44100 gain=0.6 signal=2 eqPeak=0.19875814 compressorPeak=0.3962158 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.005348503056227804
+HEADROOM sr=44100 gain=1.0 signal=0 eqPeak=1.9223852 compressorPeak=1.9223852 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.010010327215405701
+HEADROOM sr=44100 gain=1.0 signal=1 eqPeak=1.4735255 compressorPeak=1.4735255 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.010010327215405701
+HEADROOM sr=44100 gain=1.0 signal=2 eqPeak=0.21298255 compressorPeak=0.21298255 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.010010327215405701
+HEADROOM sr=48000 gain=0.6 signal=0 eqPeak=1.5560653 compressorPeak=2.9605346 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008095613672990014
+HEADROOM sr=48000 gain=0.6 signal=1 eqPeak=1.2449871 compressorPeak=2.2973762 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008095613672990014
+HEADROOM sr=48000 gain=0.6 signal=2 eqPeak=0.18219942 compressorPeak=0.3632513 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.008095613672990014
+HEADROOM sr=48000 gain=1.0 signal=0 eqPeak=1.922686 compressorPeak=1.922686 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.01293584036613001
+HEADROOM sr=48000 gain=1.0 signal=1 eqPeak=1.4688069 compressorPeak=1.4688069 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.01293584036613001
+HEADROOM sr=48000 gain=1.0 signal=2 eqPeak=0.19497138 compressorPeak=0.19497138 finalPeak=0.99 fullScaleClips=0 inBandMinDb=-0.01293584036613001
+EQ sr=16000 hz=1250.0 oldDb=-15.350349758442505 alignedDb=5.237161864240852
+EQ sr=16000 hz=1750.0 oldDb=-19.985068176688998 alignedDb=5.560792019588568
+EQ sr=16000 hz=2250.0 oldDb=-15.63145554080721 alignedDb=5.503688101380848
+EQ sr=44100 hz=1250.0 oldDb=-13.430331831166438 alignedDb=5.244890141835184
+EQ sr=44100 hz=1750.0 oldDb=-13.390093617809882 alignedDb=5.55948366712747
+EQ sr=44100 hz=2250.0 oldDb=-11.07027681254693 alignedDb=5.504413260185389
+EQ sr=48000 hz=1250.0 oldDb=-12.953260561750232 alignedDb=5.244374581417452
+EQ sr=48000 hz=1750.0 oldDb=-12.429115093581444 alignedDb=5.5576243863776345
+EQ sr=48000 hz=2250.0 oldDb=-10.250317415309437 alignedDb=5.502757217686205

@@ -40,3 +40,10 @@ Branch: `main`
 - Signing prerequisites: local.properties, all four RELEASE_* keys, and referenced keystore exist; secrets were not printed.
 - The 40-row metadata existed but all 80 clean/noisy references were missing locally. Regenerated with `python make_ablation_testset.py --data C:\Users\ragha\Downloads\dev-clean\LibriSpeech\dev-clean --output ablation_testset_regen`; all 40 file_id/noise_type/snr_db tuples matched. Copied regenerated clean/noisy directories into ablation_testset without changing tracked metadata. WAVs remain ignored.
 - Phases 1–7 are not completed by this baseline entry. Device verification: PENDING OWNER DEVICE TEST.
+
+## EQ correctness follow-up — 2026-10-28
+
+- Added delay-compensated EQ for the app while retaining the legacy reference. Independent convolution max error 2.3841858e-7 at fixed 1e-5 tolerance; full-band response and 18 loud-input cases pass. Original golden tests unchanged.
+- `gradlew.bat test assembleRelease`: 34/34 debug and 34/34 release with the optional cafe excerpt test enabled. Raw evidence and reproducible collection scripts are committed; private recordings are not.
+- Signed APK installed successfully on the connected OnePlus 13R and cold launch succeeded; installed APK SHA-256 matches the tested build. Device listening and processing of the updated build remain pending. Intelligibility gain and echo removal: not measured.
+- See RELEASE_NOTES_EQ_ALIGNMENT.md for reproduction commands, limits, headroom values and signature/hash evidence. This follow-up does not complete phases 1–7 of the original finish-up request.

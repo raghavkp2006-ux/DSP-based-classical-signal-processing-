@@ -33,7 +33,7 @@ class RunPipeline(private val context: Context) {
         val noise = NoisePsd.estimate(pre, fp, v.isSpeech)
         var y = PreEmphasis.deEmphasize(SpectralSubtraction.apply(pre, fp, noise, x.size, d.params.alpha, d.params.beta, d.params.gainSmooth, d.params.useSpectralSubtraction), d.params.preEmphCoeff)
         onProgress("Applying EQ and compression")
-        y = Eq.apply(y, raw.sampleRate, if (d.params.useEq) d.params.eqGain else 0.0)
+        y = Eq.applyAligned(y, raw.sampleRate, if (d.params.useEq) d.params.eqGain else 0.0)
         y = Compressor.compress(y, raw.sampleRate, d.params.compressionRatio, d.params.compressionMakeupDb)
         var normalized = Compressor.normalizeAndLimit(y, x)
         onProgress("Running ML post-filter")

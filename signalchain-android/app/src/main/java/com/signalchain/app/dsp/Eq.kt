@@ -66,7 +66,30 @@ object Eq {
         return y
     }
 
-    fun apply(x: FloatArray, fs: Int, gain: Double = 1.0): FloatArray {
+    /** Legacy causal reference, retained for reference parity tests. */
+    fun apply(x: FloatArray, fs: Int, gain: Double = 1.0): FloatArray =
+        applyInternal(x, fs, gain, false)
+
+    /** Offline FIR processing: align every symmetric FIR before mixing with dry audio.
+     * Mixing a delayed band with undelayed audio creates comb notches in the voice band.
+     * Zero extension retains the original duration, including the end of the recording.
+     */
+    fun applyAligned(x: FloatArray, fs: Int, gain: Double = 1.0): FloatArray =
+        applyInternal(x, fs, gain, true)
+
+    private fun applyInternal(x: FloatArray, fs: Int, gain: Double, aligned: Boolean): FloatArray {
+        fun process(input: FloatArray, taps: DoubleArray): FloatArray {
+            if (!aligned) return filter(input, taps)
+            val delay = (taps.size - 1) / 2
+            return FloatArray(input.size) { i ->
+                var sum = 0.0
+                for (j in taps.indices) {
+                    val source = i + delay - j
+                    if (source in input.indices) sum += input[source] * taps[j]
+                }
+                sum.toFloat()
+            }
+        }
         if (gain <= 0.0) return x.copyOf()
         val ny = fs / 2.0
         var o = x.copyOf()
@@ -79,30 +102,30 @@ object Eq {
         val f1High = 500.0 / ny
         if (f1High < 1.0) {
             val b1 = band(bandTaps, f1Low, f1High)
-            val filtered1 = filter(o, b1)
+            val filtered1 = process(o, b1)
             for (i in o.indices) o[i] += (gain * 0.6 * filtered1[i]).toFloat()
         }
 
         val f2Low = 1000.0 / ny
         val f2High = min(2500.0 / ny, 0.99)
         val b2 = band(bandTaps, f2Low, f2High)
-        val filtered2 = filter(o, b2)
+        val filtered2 = process(o, b2)
         for (i in o.indices) o[i] += (gain * 0.9 * filtered2[i]).toFloat()
 
         val f3Low = 2500.0 / ny
         val f3High = min(4000.0 / ny, 0.99)
         if (f3Low < 0.99 && f3Low < f3High) {
             val b3 = band(bandTaps, f3Low, f3High)
-            val filtered3 = filter(o, b3)
+            val filtered3 = process(o, b3)
             for (i in o.indices) o[i] += (gain * 0.4 * filtered3[i]).toFloat()
         }
 
         val hp = highpass(hpTaps, 80.0 / ny)
-        o = filter(o, hp)
+        o = process(o, hp)
 
         if (8000.0 / ny < 0.99) {
             val lp = lowpass(lpTaps, min(8000.0 / ny, 0.99))
-            o = filter(o, lp)
+            o = process(o, lp)
         }
 
         return o

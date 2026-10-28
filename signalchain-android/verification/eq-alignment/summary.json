@@ -1,0 +1,56 @@
+{
+  "test_counts": {
+    "testDebugUnitTest": {
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "testReleaseUnitTest": {
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "response_summary": [
+    {
+      "file": "response_16000_0.6.csv",
+      "legacy_min_db": -6.735747074834935,
+      "aligned_min_db": -0.008715721566904198,
+      "aligned_max_db": 3.764939104992406
+    },
+    {
+      "file": "response_16000_1.0.csv",
+      "legacy_min_db": -19.98506615429417,
+      "aligned_min_db": -0.014176046622113051,
+      "aligned_max_db": 5.593246817572846
+    },
+    {
+      "file": "response_44100_0.6.csv",
+      "legacy_min_db": -6.735391929095876,
+      "aligned_min_db": -0.005348503056227804,
+      "aligned_max_db": 3.7633973123104267
+    },
+    {
+      "file": "response_44100_1.0.csv",
+      "legacy_min_db": -19.940662810699237,
+      "aligned_min_db": -0.010010327215405701,
+      "aligned_max_db": 5.5918768471750955
+    },
+    {
+      "file": "response_48000_0.6.csv",
+      "legacy_min_db": -6.727511428540972,
+      "aligned_min_db": -0.008095613672990014,
+      "aligned_max_db": 3.7597649900001158
+    },
+    {
+      "file": "response_48000_1.0.csv",
+      "legacy_min_db": -19.633733253257773,
+      "aligned_min_db": -0.01293584036613001,
+      "aligned_max_db": 5.5878125724502405
+    }
+  ],
+  "apk_bytes": 67954896,
+  "apk_sha256": "0ad97e9205d46712f116095465573048406d139ee430c2ed7b6069763b217e33"
+}

@@ -1,0 +1,3 @@
+CLARITY samples=529200 rate=44100 analysis=AnalysisResult(snrDb=1.98, noiseStationarityCv=0.3427, stationaryNoise=true, speechActivityRatio=0.16026711185308848) mode=Full adaptive
+CLARITY legacy samples=529200 peak=0.99 ML=true
+CLARITY aligned samples=529200 peak=0.99 ML=true

@@ -54,3 +54,5 @@ Branch: `main`
 - 36/36 debug and 36/36 release tests passed under a 256 MiB JVM heap, including the complete 60.7-second cafe input. Chunked/whole ML maximum difference 0.0 in 16/44.1/48 kHz parity tests; no tolerance changes.
 - Signed replacement installed; the actual original MP3 decoded and completed enhancement on the OnePlus 13R, Full adaptive, same process alive. Device processing is now checked for this file. Post-run Java heap allocation ~25 MB is a snapshot, not a peak measurement.
 - See RELEASE_NOTES_MEMORY_FIX.md. Echo removal and intelligibility gain remain unmeasured; broader release smoke checklist and original finish-up phases remain incomplete.
+
+- Phase 1A pre-refactor snapshot: current aligned-EQ and bounded-ML inline chain captured for Light touch and Full adaptive. Debug/release targeted tests each passed 1/1 on 2026-10-28; ONNX fallback warning is asserted absent. Extraction and the rest of Phase 1 remain outstanding.

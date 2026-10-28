@@ -34,7 +34,7 @@ class PipelineStageDumpTest {
         outDir.mkdirs()
 
         // Dump 00: raw input
-        WavWriter.write(File(outDir, "00_input.wav").absolutePath, audio, sampleRate)
+        writeFloatWav(File(outDir, "00_input.wav"), audio, sampleRate)
 
         val fp = FrameParams.create(audio.size, sampleRate)
         val a = AudioAnalyzer.analyze(audio, sampleRate)
@@ -42,7 +42,7 @@ class PipelineStageDumpTest {
 
         // Stage 1: Pre-emphasis
         val pre = PreEmphasis.apply(audio, d.params.preEmphCoeff)
-        WavWriter.write(File(outDir, "01_preemph.wav").absolutePath, pre, sampleRate)
+        writeFloatWav(File(outDir, "01_preemph.wav"), pre, sampleRate)
 
         // Stage 2: VAD & Noise PSD
         val v = Vad.detect(pre, fp, d.params.vadHangoverFrames)
@@ -54,15 +54,15 @@ class PipelineStageDumpTest {
             d.params.alpha, d.params.beta, d.params.gainSmooth, d.params.useSpectralSubtraction
         )
         val deemph = PreEmphasis.deEmphasize(sub, d.params.preEmphCoeff)
-        WavWriter.write(File(outDir, "03_specsub_deemph.wav").absolutePath, deemph, sampleRate)
+        writeFloatWav(File(outDir, "03_specsub_deemph.wav"), deemph, sampleRate)
 
         // Stage 4: Voice-band EQ
         val eq = Eq.apply(deemph, sampleRate, if (d.params.useEq) d.params.eqGain else 0.0)
-        WavWriter.write(File(outDir, "04_eq.wav").absolutePath, eq, sampleRate)
+        writeFloatWav(File(outDir, "04_eq.wav"), eq, sampleRate)
 
         // Stage 5: Compression
         val comp = Compressor.compress(eq, sampleRate, d.params.compressionRatio, d.params.compressionMakeupDb)
-        WavWriter.write(File(outDir, "05_compressor.wav").absolutePath, comp, sampleRate)
+        writeFloatWav(File(outDir, "05_compressor.wav"), comp, sampleRate)
 
         // Stage 6: Normalize & Limit
         val normalized = Compressor.normalizeAndLimit(comp, audio)
@@ -106,7 +106,7 @@ class PipelineStageDumpTest {
 
     @Test fun floatWriterPreservesOutOfRangeSamples() {
         val samples=floatArrayOf(-2f,-1f,0f,1f,2f)
-        val file=File("build/stage_dumps/float_writer_test.wav"); file.parentFile.mkdirs()
+        val file=File("build/stage_dumps/float_writer_test.wav"); file.parentFile!!.mkdirs()
         writeFloatWav(file,samples,16000)
         val b=java.nio.ByteBuffer.wrap(file.readBytes()).order(java.nio.ByteOrder.LITTLE_ENDIAN)
         org.junit.Assert.assertEquals(3,b.getShort(20).toInt())

@@ -48,6 +48,15 @@ android {
         }
     }
 
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -109,4 +118,15 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.microsoft.onnxruntime:onnxruntime:1.18.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+// Keep debug as one universal APK with all existing ABIs; release has three
+// targeted APKs plus the universal artifact. x86 remains in the universal APK.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            val abi = output.filters.firstOrNull { it.filterType == com.android.build.api.variant.FilterConfiguration.FilterType.ABI }?.identifier
+            if ((variant.buildType == "debug" && abi != null) || (variant.buildType == "release" && abi == "x86")) output.enabled.set(false)
+        }
+    }
 }

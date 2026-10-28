@@ -4,7 +4,7 @@ The release APK is signed with the configured release keystore. The full checkli
 
 ```powershell
 adb devices
-adb install -r "C:\Users\ragha\OneDrive\Desktop\gitdsp\DSP-based-classical-signal-processing-\signalchain-android\app\build\outputs\apk\release\app-release.apk"
+adb install -r "C:\Users\ragha\OneDrive\Desktop\gitdsp\DSP-based-classical-signal-processing-\signalchain-android\app\build\outputs\apk\release\app-universal-release.apk"
 adb logcat -s SignalChain
 ```
 

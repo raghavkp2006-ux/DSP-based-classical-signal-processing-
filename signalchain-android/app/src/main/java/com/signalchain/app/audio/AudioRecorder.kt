@@ -54,13 +54,17 @@ class AudioRecorder {
             val minBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
             val bufferSize = maxOf(minBufSize, sampleRate * 2) // at least 1 second buffer
 
-            recorder = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sampleRate,
-                channelConfig,
-                audioFormat,
-                bufferSize
-            )
+            recorder = try {
+                AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    sampleRate,
+                    channelConfig,
+                    audioFormat,
+                    bufferSize
+                )
+            } catch (e: SecurityException) {
+                throw SecurityException("Microphone recording permission denied", e)
+            }
 
             if (recorder?.state != AudioRecord.STATE_INITIALIZED) {
                 recorder?.release()

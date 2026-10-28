@@ -15,7 +15,7 @@ class RunPipeline(private val context: Context) {
         onProgress("Loading audio")
         val raw = WavLoader.load(inputPath)
         val core = PipelineCore.process(raw.samples, raw.sampleRate, { OnnxDenoiser(context) }, onProgress)
-        android.util.Log.d("SignalChain", "AnalysisResult(snrDb=${core.snrDb}, noiseStationarityCv=${core.noiseStationarityCv}, stationaryNoise=${core.stationaryNoise}, speechActivityRatio=${core.speechActivityRatio}); chosenMode=${core.mode}")
+        android.util.Log.i("SignalChain", "AnalysisResult(snrDb=${core.snrDb}, noiseStationarityCv=${core.noiseStationarityCv}, stationaryNoise=${core.stationaryNoise}, speechActivityRatio=${core.speechActivityRatio}); chosenMode=${core.mode}")
         onProgress("Finalizing")
         val exportDir = File(context.cacheDir, "exports")
         check(exportDir.exists() || exportDir.mkdirs()) { "Unable to create export directory" }

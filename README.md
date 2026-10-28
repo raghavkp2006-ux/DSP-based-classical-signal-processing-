@@ -104,5 +104,5 @@ That asset path is already present in the current checkout.
 - Clean-referenced SI-SDR changes were negative on both original and padded test sets; see [padded evaluation](ablation_output/PADDED_EVAL.md). These metrics do not establish perceived quality.
 - The processing is file-based, not real-time. The CNN post-filter operates at 16 kHz; bounded inference reduces memory but complete decoded audio remains in memory.
 - Android device smoke test is pending owner. A connected device processed and played one recording without crashing, but that does not complete the smoke checklist.
-- The release APK currently contains ONNX Runtime native libraries for multiple ABIs; release sizes are documented after the release build.
+- Release APKs range from 12.31 MiB (armeabi-v7a) to 19.38 MiB (x86_64); the universal APK is 64.81 MiB. See [release notes](RELEASE_NOTES_v1.0.0.md) for hashes and ABI details.
 - The last web-app version is tag `flask-legacy-final`.

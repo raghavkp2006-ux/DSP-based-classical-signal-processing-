@@ -7,8 +7,9 @@ import com.signalchain.app.ml.*
 data class CoreResult(val mode:String,val rationale:String,val snrDb:Double,val noiseStationarityCv:Double,val stationaryNoise:Boolean,val speechActivityRatio:Double,val snrBeforeDb:Double,val snrAfterDb:Double,val enhancedSamples:FloatArray,val clipsPct:Double,val warning:String?)
 
 object PipelineCore {
-    fun process(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit={}):CoreResult {
+    fun process(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit={},onStage:((String,FloatArray)->Unit)?=null):CoreResult {
         val x=samples
+        onStage?.invoke("00_input", x)
         val fp=FrameParams.create(x.size,sampleRate)
         val fixed=Vad.detect(PreEmphasis.apply(x),fp)
         val before=SnrEstimator.estimateSnr(x,fp,fixed.isSpeech)
@@ -17,22 +18,30 @@ object PipelineCore {
         val d=DecisionAgent.decide(a.snrDb,a.stationaryNoise,a.speechActivityRatio)
         onProgress("Reducing noise")
         val pre=PreEmphasis.apply(x,d.params.preEmphCoeff)
+        onStage?.invoke("01_preemph", pre)
         val v=Vad.detect(pre,fp,d.params.vadHangoverFrames)
         val noise=NoisePsd.estimate(pre,fp,v.isSpeech)
         var y=PreEmphasis.deEmphasize(SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction),d.params.preEmphCoeff)
+        onStage?.invoke("03_specsub_deemph", y)
         onProgress("Applying EQ and compression")
         y=Eq.applyAligned(y,sampleRate,if(d.params.useEq) d.params.eqGain else 0.0)
+        onStage?.invoke("04_eq", y)
         y=Compressor.compress(y,sampleRate,d.params.compressionRatio,d.params.compressionMakeupDb)
+        onStage?.invoke("05_compressor", y)
         var normalized=Compressor.normalizeAndLimit(y,x)
+        onStage?.invoke("06_normalized", normalized.audio)
         onProgress("Running ML post-filter")
         var warning:String?=null
         if(d.params.useMlPostfilter) {
             val post=MlPostFilter.applyOrFallback(normalized) {
-                Compressor.normalizeAndLimit(requireNotNull(denoiserFactory)().use { it.applyBounded(normalized.audio,sampleRate) },x)
+                val ml = requireNotNull(denoiserFactory)().use { it.applyBounded(normalized.audio,sampleRate) }
+                onStage?.invoke("07_ml_postfilter", ml)
+                Compressor.normalizeAndLimit(ml,x)
             }
             normalized=post.value
             warning=post.warning
         }
+        onStage?.invoke("08_final", normalized.audio)
         return CoreResult(d.mode,d.rationale,a.snrDb,a.noiseStationarityCv,a.stationaryNoise,a.speechActivityRatio,before,SnrEstimator.estimateSnr(normalized.audio,fp,fixed.isSpeech),normalized.audio,normalized.clipsPct,warning)
     }
 }

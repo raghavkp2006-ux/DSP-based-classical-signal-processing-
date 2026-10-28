@@ -70,4 +70,27 @@ class PipelineStageDumpTest {
 
         assertTrue(File(outDir, "06_normalized.wav").exists())
     }
+
+    @Test fun fullAdaptiveCoreDumpsRealOnnxStages() {
+        val fs=16000
+        val rng=java.util.Random(42)
+        val audio=FloatArray(fs*2) { i ->
+            val gate=if (i in 3200 until 24000) 1.0 else 0.0
+            (sin(2*Math.PI*300*i/fs)*0.3*gate+rng.nextGaussian()*0.15).toFloat()
+        }
+        val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use { it.readBytes() }
+        val out=File("build/stage_dumps/full_adaptive").also { it.mkdirs() }
+        val stages=mutableSetOf<String>()
+        val result=PipelineCore.process(audio,fs,{com.signalchain.app.ml.OnnxDenoiser(bytes)},onStage={ name, samples ->
+            assertTrue("$name finite",samples.all { it.isFinite() })
+            stages.add(name)
+            WavWriter.write(File(out,"$name.wav").absolutePath,samples,fs)
+        })
+        org.junit.Assert.assertEquals("Full adaptive",result.mode)
+        org.junit.Assert.assertNull(result.warning)
+        org.junit.Assert.assertEquals(audio.size,result.enhancedSamples.size)
+        assertTrue(result.enhancedSamples.all { it.isFinite() && kotlin.math.abs(it)<=1f })
+        assertTrue(stages.containsAll(listOf("00_input","01_preemph","03_specsub_deemph","04_eq","05_compressor","06_normalized","07_ml_postfilter","08_final")))
+        println("STAGE_DUMP stages=${stages.size} samples=${audio.size} warning=${result.warning}")
+    }
 }

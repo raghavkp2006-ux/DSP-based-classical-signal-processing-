@@ -32,3 +32,11 @@ Branch: `main`
 - `4a047ba` — Audio cache, FileProvider, duration, and logging privacy fixes.
 - `3efa8ee` — R8 release verification adjustment and owner smoke-test checklist.
 - `f8af4cf` — STT options spike (`STT_SPIKE.md`).
+
+## Finish-up run 2026-10-28
+
+- Phase 0 baseline: clean main matched origin/main at f68e1000c9e2bdc87fb07b04256886b55d976e11 after fetch. `gradlew.bat clean test` succeeded: debug 30/30 and release 30/30, zero failures/errors/skips (XML reports under app/build/test-results/testDebugUnitTest and testReleaseUnitTest).
+- Runtime: Temurin JDK 17.0.20.1; Python 3.12.10; numpy 2.5.3, scipy 1.18.1, torch 2.14.0, onnx 1.23.0. Installed missing pystoi 0.4.1 and soundfile 0.14.0.
+- Signing prerequisites: local.properties, all four RELEASE_* keys, and referenced keystore exist; secrets were not printed.
+- The 40-row metadata existed but all 80 clean/noisy references were missing locally. Regenerated with `python make_ablation_testset.py --data C:\Users\ragha\Downloads\dev-clean\LibriSpeech\dev-clean --output ablation_testset_regen`; all 40 file_id/noise_type/snr_db tuples matched. Copied regenerated clean/noisy directories into ablation_testset without changing tracked metadata. WAVs remain ignored.
+- Phases 1–7 are not completed by this baseline entry. Device verification: PENDING OWNER DEVICE TEST.

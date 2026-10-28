@@ -17,7 +17,7 @@ class KotlinAblationExportTest {
         val headers=lines.first().split(','); val records=lines.drop(1)
         assertEquals("Expected 40 conditions",40,records.size)
         val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use { it.readBytes() }
-        val base=File(root,"ablation_output")
+        val base=System.getenv("SIGNALCHAIN_ABLATION_OUTPUT_DIR")?.let { File(it) } ?: File(root,"ablation_output")
         val aligned=File(base,"kotlin").also { it.mkdirs() }
         val legacy=File(base,"kotlin_legacy").also { it.mkdirs() }
         val modes=File(aligned,"kotlin_modes.csv").printWriter()

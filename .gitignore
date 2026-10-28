@@ -26,3 +26,6 @@ local.properties
 
 # Note: model checkpoints under models/ are intentionally tracked in git
 # (small enough at ~50KB, LFS is not needed). JSON sidecars are also tracked.
+
+# Locally regenerated padded evaluation dataset
+/ablation_testset_padded/

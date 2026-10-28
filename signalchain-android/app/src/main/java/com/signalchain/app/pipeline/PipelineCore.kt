@@ -11,8 +11,8 @@ object PipelineCore {
         processInternal(samples,sampleRate,denoiserFactory,onProgress,onStage,false)
 
     /** Evaluation-only arm; the production entry point always uses the aligned EQ. */
-    internal fun processForEvaluation(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,legacyEq:Boolean=false):CoreResult =
-        processInternal(samples,sampleRate,denoiserFactory,{},null,legacyEq)
+    internal fun processForEvaluation(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,legacyEq:Boolean=false,onStage:((String,FloatArray)->Unit)?=null):CoreResult =
+        processInternal(samples,sampleRate,denoiserFactory,{},onStage,legacyEq)
 
     private fun processInternal(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit,onStage:((String,FloatArray)->Unit)?,legacyEq:Boolean):CoreResult {
         val x=samples
@@ -27,8 +27,12 @@ object PipelineCore {
         val pre=PreEmphasis.apply(x,d.params.preEmphCoeff)
         onStage?.invoke("01_preemph", pre)
         val v=Vad.detect(pre,fp,d.params.vadHangoverFrames)
+        onStage?.invoke("02_vad", FloatArray(v.isSpeech.size) { if(v.isSpeech[it]) 1f else 0f })
         val noise=NoisePsd.estimate(pre,fp,v.isSpeech)
-        var y=PreEmphasis.deEmphasize(SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction),d.params.preEmphCoeff)
+        onStage?.invoke("02_noise_psd", noise)
+        val spectral=SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction)
+        onStage?.invoke("03_spectral", spectral)
+        var y=PreEmphasis.deEmphasize(spectral,d.params.preEmphCoeff)
         onStage?.invoke("03_specsub_deemph", y)
         onProgress("Applying EQ and compression")
         val eqGain=if(d.params.useEq) d.params.eqGain else 0.0

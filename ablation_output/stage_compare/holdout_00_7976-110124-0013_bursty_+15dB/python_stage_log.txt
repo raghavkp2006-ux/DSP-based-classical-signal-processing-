@@ -1,0 +1,13 @@
+{'stage': 'Load & Normalize', 'detail': '3.00s @ 16000 Hz'}
+{'stage': 'Agent Analysis', 'detail': 'SNR=15.7 dB, stationary noise'}
+{'stage': 'Agent Decision: Light touch', 'detail': 'High estimated SNR: spectral subtraction, EQ, and compression are all bypassed to preserve the original signal.'}
+{'stage': 'Pre-emphasis', 'detail': 'coeff=0.97'}
+{'stage': 'Framing', 'detail': '298 frames, 400 samples/frame'}
+{'stage': 'Voice Activity Detection', 'detail': '31.9% speech frames'}
+{'stage': 'Noise PSD Estimation', 'detail': 'from 203 noise frames'}
+{'stage': 'Spectral Subtraction + Wiener Filter', 'detail': 'alpha=1.0, beta=1.0'}
+{'stage': 'De-emphasis', 'detail': 'inverse pre-emphasis'}
+{'stage': 'Voice-band EQ', 'detail': 'eq_gain=0.00 (bypassed)'}
+{'stage': 'Dynamic Range Compression', 'detail': '1.0:1, +0dB makeup (pass-through)'}
+{'stage': 'Normalize & Limit', 'detail': 'peak + RMS matched; 0.16% samples hit limiter'}
+{'stage': 'SNR Estimation', 'detail': '7.8 dB -> 5.3 dB'}

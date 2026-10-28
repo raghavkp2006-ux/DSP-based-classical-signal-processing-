@@ -1,0 +1,13 @@
+{'stage': 'Load & Normalize', 'detail': '3.00s @ 16000 Hz'}
+{'stage': 'Agent Analysis', 'detail': 'SNR=5.3 dB, stationary noise'}
+{'stage': 'Agent Decision: Classical DSP', 'detail': 'Moderate SNR with stationary noise: spectral subtraction + Wiener filtering with light EQ and mild compression. Sparse speech detected; VAD hangover is widened.'}
+{'stage': 'Pre-emphasis', 'detail': 'coeff=0.97'}
+{'stage': 'Framing', 'detail': '298 frames, 400 samples/frame'}
+{'stage': 'Voice Activity Detection', 'detail': '6.0% speech frames'}
+{'stage': 'Noise PSD Estimation', 'detail': 'from 280 noise frames'}
+{'stage': 'Spectral Subtraction + Wiener Filter', 'detail': 'alpha=1.2, beta=0.1'}
+{'stage': 'De-emphasis', 'detail': 'inverse pre-emphasis'}
+{'stage': 'Voice-band EQ', 'detail': 'eq_gain=0.50'}
+{'stage': 'Dynamic Range Compression', 'detail': '1.8:1, +6dB makeup'}
+{'stage': 'Normalize & Limit', 'detail': 'peak + RMS matched; 0.15% samples hit limiter'}
+{'stage': 'SNR Estimation', 'detail': '10.9 dB -> 39.8 dB'}

@@ -4,7 +4,7 @@
 
 SignalChain is a comprehensive, fully on-device speech enhancement application built for native Android using Kotlin. It is designed to take noisy audio input (either uploaded files or live microphone recordings), analyze its signal-to-noise ratio (SNR) and stationarity, and dynamically apply an intelligent pipeline of classical Digital Signal Processing (DSP) and Machine Learning (ML) techniques to enhance speech quality before outputting a cleaned WAV file.
 
-While the project originally began as a cloud-dependent Python reference implementation (using Flask and classical Python DSP/ML scripts), it has since fully pivoted to a native Android Kotlin application. All processing now happens entirely on-device, with no cloud backend or external server dependencies. Explicitly out of scope for the current Android build are Speech-to-Text (STT) transcription (which exists only as a legacy/ablation feature in the offline Python code), iOS support, and real-time streaming latency (the app currently processes audio in block-mode rather than as a live stream).
+While the project originally began as a cloud-dependent Python reference implementation (using a web interface and classical Python DSP/ML scripts), it has since fully pivoted to a native Android Kotlin application. All processing now happens entirely on-device, with no cloud backend or external server dependencies. STT is not in v1.0.0; planned for v1.1. iOS support and real-time streaming are not implemented; the app processes complete files.
 
 ## 2. Architecture Overview
 
@@ -43,7 +43,7 @@ These scripts are used exclusively on developer machines for training and ablati
 
 ### Dead / Unused / Legacy Code
 These files represent the previous iteration of the project and are currently unused by the Android application:
-*   **`app.py` & `templates/`**: The deprecated Flask web server and its UI templates.
+*   **Legacy web interface**: Preserved at tag `flask-legacy-final`.
 *   **`dsp_pipeline.py` & `agent_analyzer.py` & `decision_agent.py` & `ml_postfilter.py`**: The original Python implementations of the DSP and agent logic.
 *   **`stt_module.py`**: Legacy Speech-to-Text module (used only as a proxy in `ablation_runner.py`).
 *   **`voice_enhancer.py` & `voice_enhancer.m`**: Old prototyping scripts.
@@ -172,9 +172,9 @@ A strict audit of the codebase reveals several genuine limitations:
 
 1.  **Block Processing Latency**: The app is not a real-time streaming system. `RunPipeline.kt` processes the entire `FloatArray` in memory at once. While it runs locally on-device, it incurs full-file latency.
 2.  **Hardcoded Routing Thresholds**: The `DecisionAgent.kt` relies on rigid, hardcoded thresholds (e.g., `snr > 15`, `snr >= 5`). These heuristics may fail on edge-case audio environments.
-3.  **Resampling Bottleneck**: The ML denoiser operates exclusively at 16 kHz. `OnnxDenoiser.kt` performs linear resampling on the CPU up to 16 kHz and back, which is computationally expensive and potentially degrades frequencies above 8 kHz in high-fidelity recordings.
-4.  **Lack of Automated Testing**: There are no JUnit or Android instrumented tests present in the `signalchain-android` module. The Kotlin DSP algorithms are untested outside of manual app usage.
-5.  **ML Fallback**: If the ONNX runtime encounters an OOM (Out of Memory) or dimension mismatch error, `RunPipeline.kt` catches the exception and falls back to the DSP output. This means users with low-memory devices might unknowingly bypass the ML stage.
+3.  **Resampling Bottleneck**: The ML denoiser operates exclusively at 16 kHz. `OnnxDenoiser.kt` performs windowed-sinc resampling on the CPU to 16 kHz and back, which is computationally expensive and potentially degrades frequencies above 8 kHz in high-fidelity recordings.
+4.  **Test Coverage**: JVM tests cover DSP goldens, agent parity, ONNX inference, stage dumps and bounded inference. Device coverage is limited and the full owner smoke checklist remains pending.
+5.  **ML Fallback**: Ordinary ONNX exceptions trigger DSP-only output and a visible fallback warning. An out-of-memory error is not guaranteed to be recoverable.
 
 ## 8. Comparison Table vs. the Reference Paper
 
@@ -197,3 +197,7 @@ SignalChain is currently **ahead** in terms of practical engineering and product
 However, SignalChain is currently **behind** in rigorous academic validation. The lack of standard objective metrics (like PESQ or NCM) evaluated against a recognized benchmark dataset (like NOIZEUS or VoiceBank-DEMAND) means we cannot definitively claim it produces higher quality audio than the paper's method. The single most valuable next step for the project would be to run the exact Kotlin DSP/ML pipeline through a JNI/offline wrapper against the NOIZEUS dataset and compute PESQ and STOI scores, allowing for an apples-to-apples numerical comparison.
 
 The earlier Python ablation conclusions in this overview and the stored full ablation use the legacy causal EQ. The [Kotlin evaluation](ablation_output/KOTLIN_EVAL.md) separately reports Python and Kotlin aligned-EQ results on the same 40 conditions.
+
+## Current implementation notes
+
+`PipelineCore.kt` performs context-free processing with aligned EQ and bounded ONNX inference. Light touch bypasses subtraction, EQ and compression parameters, but the current spectral stage still applies a Wiener gain; see [fidelity investigation](ablation_output/LIGHT_TOUCH_FIDELITY.md). Classical DSP uses EQ gain 0.5, compression ratio 1.8 and makeup 6 dB; Full adaptive uses EQ gain 1.0 and bypasses compression with ratio 1.0 and makeup 0 dB. Sparse speech uses a five-frame VAD hangover, whose Python/Kotlin divergence is documented in [stage comparison](ablation_output/STAGE_COMPARISON.md).

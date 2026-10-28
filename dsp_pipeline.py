@@ -7,7 +7,7 @@ pipeline (BECE301L autonomous speech-processing agent project).
 Every stage that used to live inline in a single monolithic script is now
 its own function with explicit inputs/outputs, so the pipeline can be:
   - unit tested in isolation,
-  - called from Flask (app.py) for the web dashboard,
+  - called from offline evaluation tools,
   - called from a notebook / batch script for evaluation on many files,
   - eventually wrapped by a decision agent that swaps parameters per stage.
 
@@ -26,7 +26,7 @@ Pipeline stages
 11. estimate_snr            - segmental SNR, before vs. after (new)
 
 `run_pipeline(...)` orchestrates all of the above and returns a single
-result dict consumed by app.py.
+result dict consumed by evaluation tools.
 """
 
 import numpy as np

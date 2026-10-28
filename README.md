@@ -99,24 +99,10 @@ That asset path is already present in the current checkout.
 
 ## Current status and limitations
 
-### Known limitations (v1.0.0)
-- Room reverb/echo in the source recording is not removed. SignalChain targets additive
-  noise (hiss, crowd, hum, fans); dereverberation needs a different model and is planned
-  for a later version.
-- No speech-to-text yet (planned for v1.1).
-- Objective results (STOI) were measured on the Python reference pipeline. The Kotlin
-  on-device chain was validated by golden-file parity tests and listening, not STOI.
-  In the stored ablation the full agent (0.822 STOI) still trails the unprocessed
-  baseline (0.891) on aggregate; subjective noise reduction is the intended benefit.
-- Release APK is ~65 MB (ONNX Runtime native libraries for several CPU architectures).
-
-- The Kotlin DSP EQ implementation has been corrected to strictly match the Python reference filter response across all sample rates, backed by golden numerical parity and frequency sweep tests.
-- STOI is the only objective metric currently reported. PESQ is unavailable because the current environment lacks the required native build tooling.
-- In the current stored full ablation report (40 held-out conditions), the unprocessed baseline has aggregate STOI `0.8910`, while the full agent has aggregate STOI `0.8219`. The full agent therefore still trails the unprocessed baseline on aggregate STOI.
-- Real-time or streaming processing is out of scope; the app currently processes complete audio files.
-- Whisper/STT integration is out of scope for the Android app.
-- iOS support is out of scope.
-
-The Python scripts and stored evaluation artifacts are useful for retraining and further investigation, but they do not change the fact that the shipping product is the Android app.
-
-The previously stored Python ablation results used the legacy causal EQ. The newer [Kotlin evaluation](ablation_output/KOTLIN_EVAL.md) also reports aligned-EQ Python and Kotlin arms; these comparisons do not establish perceptual quality.
+- Room reverb and echo in source recordings are not removed. STT is not in v1.0.0; planned for v1.1.
+- On the 40-condition set, mean STOI is 0.8910 for noisy audio, 0.8378 for Python legacy EQ, 0.8669 for Python aligned EQ, and 0.8757 for the Kotlin aligned-EQ chain. The Kotlin agent trails the unprocessed baseline; see [Kotlin evaluation](ablation_output/KOTLIN_EVAL.md) for per-SNR results, routing, and measurement limitations. Earlier stored Python ablations used legacy causal EQ.
+- Clean-referenced SI-SDR changes were negative on both original and padded test sets; see [padded evaluation](ablation_output/PADDED_EVAL.md). These metrics do not establish perceived quality.
+- The processing is file-based, not real-time. The CNN post-filter operates at 16 kHz; bounded inference reduces memory but complete decoded audio remains in memory.
+- Android device smoke test is pending owner. A connected device processed and played one recording without crashing, but that does not complete the smoke checklist.
+- The release APK currently contains ONNX Runtime native libraries for multiple ABIs; release sizes are documented after the release build.
+- The last web-app version is tag `flask-legacy-final`.

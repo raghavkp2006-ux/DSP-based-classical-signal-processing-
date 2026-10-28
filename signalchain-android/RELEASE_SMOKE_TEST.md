@@ -1,19 +1,24 @@
 # Release APK smoke test
 
-The verified APK is debug-signed because this checkout has no release keystore configured. Install it on the owner’s Android phone from PowerShell with:
+The release APK is signed with the configured release keystore. The full checklist is pending owner device testing; an earlier connected-device run processed and played the cafe file but did not complete this checklist.
 
 ```powershell
 adb devices
-adb install -r "C:\Users\ragha\OneDrive\Desktop\dspproject\signalchain-android\app\build\outputs\apk\release\app-release.apk"
+adb install -r "C:\Users\ragha\OneDrive\Desktop\gitdsp\DSP-based-classical-signal-processing-\signalchain-android\app\build\outputs\apk\release\app-release.apk"
+adb logcat -s SignalChain
 ```
 
-## Manual checklist
+Inspect the analysis line and chosen mode in logcat. Expected results:
 
-1. Launch **SignalChain** and confirm the upload screen opens without a crash.
-2. Choose a short recording with clearly audible background noise and wait for enhancement to finish.
-3. Confirm the result screen shows a processing mode. For a low-SNR or non-stationary sample, confirm it shows **Full adaptive** and no ML-fallback warning appears.
-4. Play the enhanced output through to the end and confirm playback works.
-5. Use **Share or Save Enhanced Audio**, choose an available share target, and confirm it receives a playable WAV file.
-6. Clear session history and confirm the result and selected recording disappear from the screen.
-
-Device installation and this manual smoke test have not been performed by Codex.
+| Step | Expected result | Status |
+|---|---|---|
+| Launch | Upload screen opens without a crash | PENDING OWNER DEVICE TEST |
+| Noisy clip | Full adaptive selected, no fallback warning | PENDING OWNER DEVICE TEST |
+| High-SNR clip | Light touch selected | PENDING OWNER DEVICE TEST |
+| Playback | Enhanced audio plays to the end | PENDING OWNER DEVICE TEST |
+| Share/save | Recipient or saved WAV is playable | PENDING OWNER DEVICE TEST |
+| Clear history | History and selected result clear | PENDING OWNER DEVICE TEST |
+| Rotate during processing | Processing does not restart | PENDING OWNER DEVICE TEST |
+| File larger than 50 MB | Rejected with friendly message | PENDING OWNER DEVICE TEST |
+| Corrupt file | Rejected with friendly message | PENDING OWNER DEVICE TEST |
+| MP3/M4A | Decodes and processes | PENDING OWNER DEVICE TEST |

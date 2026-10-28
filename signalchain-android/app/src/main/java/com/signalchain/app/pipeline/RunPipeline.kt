@@ -14,58 +14,27 @@ class RunPipeline(private val context: Context) {
     fun run(inputPath: String, onProgress: (String) -> Unit = {}): PipelineResult {
         onProgress("Loading audio")
         val raw = WavLoader.load(inputPath)
-        val x = raw.samples
-        val fp = FrameParams.create(x.size, raw.sampleRate)
-        val fixed = Vad.detect(PreEmphasis.apply(x), fp)
-        val before = SnrEstimator.estimateSnr(x, fp, fixed.isSpeech)
-        onProgress("Analyzing signal")
-        val a = AudioAnalyzer.analyze(x, raw.sampleRate)
-        val d = DecisionAgent.decide(a.snrDb, a.stationaryNoise, a.speechActivityRatio)
-        android.util.Log.d(
-            "SignalChain",
-            "AnalysisResult(snrDb=${a.snrDb}, noiseStationarityCv=${a.noiseStationarityCv}, " +
-                "stationaryNoise=${a.stationaryNoise}, speechActivityRatio=${a.speechActivityRatio}); " +
-                "chosenMode=${d.mode}"
-        )
-        onProgress("Reducing noise")
-        val pre = PreEmphasis.apply(x, d.params.preEmphCoeff)
-        val v = Vad.detect(pre, fp, d.params.vadHangoverFrames)
-        val noise = NoisePsd.estimate(pre, fp, v.isSpeech)
-        var y = PreEmphasis.deEmphasize(SpectralSubtraction.apply(pre, fp, noise, x.size, d.params.alpha, d.params.beta, d.params.gainSmooth, d.params.useSpectralSubtraction), d.params.preEmphCoeff)
-        onProgress("Applying EQ and compression")
-        y = Eq.applyAligned(y, raw.sampleRate, if (d.params.useEq) d.params.eqGain else 0.0)
-        y = Compressor.compress(y, raw.sampleRate, d.params.compressionRatio, d.params.compressionMakeupDb)
-        var normalized = Compressor.normalizeAndLimit(y, x)
-        onProgress("Running ML post-filter")
-        var warningMsg: String? = null
-        if (d.params.useMlPostfilter) {
-            val postFilter = MlPostFilter.applyOrFallback(normalized) {
-                Compressor.normalizeAndLimit(
-                    OnnxDenoiser(context).use { it.applyBounded(normalized.audio, raw.sampleRate) }, x
-                )
-            }
-            normalized = postFilter.value
-            warningMsg = postFilter.warning
-        }
+        val core = PipelineCore.process(raw.samples, raw.sampleRate, { OnnxDenoiser(context) }, onProgress)
+        android.util.Log.d("SignalChain", "AnalysisResult(snrDb=${core.snrDb}, noiseStationarityCv=${core.noiseStationarityCv}, stationaryNoise=${core.stationaryNoise}, speechActivityRatio=${core.speechActivityRatio}); chosenMode=${core.mode}")
         onProgress("Finalizing")
         val exportDir = File(context.cacheDir, "exports")
         check(exportDir.exists() || exportDir.mkdirs()) { "Unable to create export directory" }
         val out = File(exportDir, "signalchain-enhanced-${System.currentTimeMillis()}.wav")
         try {
-            WavWriter.write(out.absolutePath, normalized.audio, raw.sampleRate)
+            WavWriter.write(out.absolutePath, core.enhancedSamples, raw.sampleRate)
         } catch (e: Exception) {
             out.delete()
             throw e
         }
         return PipelineResult(
-            d.mode,
-            d.rationale,
-            before,
-            SnrEstimator.estimateSnr(normalized.audio, fp, fixed.isSpeech),
+            core.mode,
+            core.rationale,
+            core.snrBeforeDb,
+            core.snrAfterDb,
             out.absolutePath,
-            normalized.clipsPct,
-            enhancedSamples = normalized.audio,
-            warning = warningMsg
+            core.clipsPct,
+            enhancedSamples = core.enhancedSamples,
+            warning = core.warning
         )
     }
 

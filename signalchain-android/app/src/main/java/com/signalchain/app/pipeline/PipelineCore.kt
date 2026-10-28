@@ -7,7 +7,14 @@ import com.signalchain.app.ml.*
 data class CoreResult(val mode:String,val rationale:String,val snrDb:Double,val noiseStationarityCv:Double,val stationaryNoise:Boolean,val speechActivityRatio:Double,val snrBeforeDb:Double,val snrAfterDb:Double,val enhancedSamples:FloatArray,val clipsPct:Double,val warning:String?)
 
 object PipelineCore {
-    fun process(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit={},onStage:((String,FloatArray)->Unit)?=null):CoreResult {
+    fun process(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit={},onStage:((String,FloatArray)->Unit)?=null):CoreResult =
+        processInternal(samples,sampleRate,denoiserFactory,onProgress,onStage,false)
+
+    /** Evaluation-only arm; the production entry point always uses the aligned EQ. */
+    internal fun processForEvaluation(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,legacyEq:Boolean=false):CoreResult =
+        processInternal(samples,sampleRate,denoiserFactory,{},null,legacyEq)
+
+    private fun processInternal(samples:FloatArray,sampleRate:Int,denoiserFactory:(() -> OnnxDenoiser)?,onProgress:(String)->Unit,onStage:((String,FloatArray)->Unit)?,legacyEq:Boolean):CoreResult {
         val x=samples
         onStage?.invoke("00_input", x)
         val fp=FrameParams.create(x.size,sampleRate)
@@ -24,7 +31,8 @@ object PipelineCore {
         var y=PreEmphasis.deEmphasize(SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction),d.params.preEmphCoeff)
         onStage?.invoke("03_specsub_deemph", y)
         onProgress("Applying EQ and compression")
-        y=Eq.applyAligned(y,sampleRate,if(d.params.useEq) d.params.eqGain else 0.0)
+        val eqGain=if(d.params.useEq) d.params.eqGain else 0.0
+        y=if(legacyEq) Eq.apply(y,sampleRate,eqGain) else Eq.applyAligned(y,sampleRate,eqGain)
         onStage?.invoke("04_eq", y)
         y=Compressor.compress(y,sampleRate,d.params.compressionRatio,d.params.compressionMakeupDb)
         onStage?.invoke("05_compressor", y)

@@ -84,7 +84,8 @@ class PipelineStageDumpTest {
         val result=PipelineCore.process(audio,fs,{com.signalchain.app.ml.OnnxDenoiser(bytes)},onStage={ name, samples ->
             assertTrue("$name finite",samples.all { it.isFinite() })
             stages.add(name)
-            WavWriter.write(File(out,"$name.wav").absolutePath,samples,fs)
+            val file=File(out,"$name.wav")
+            if (name=="08_final") WavWriter.write(file.absolutePath,samples,fs) else writeFloatWav(file,samples,fs)
         })
         org.junit.Assert.assertEquals("Full adaptive",result.mode)
         org.junit.Assert.assertNull(result.warning)
@@ -92,5 +93,24 @@ class PipelineStageDumpTest {
         assertTrue(result.enhancedSamples.all { it.isFinite() && kotlin.math.abs(it)<=1f })
         assertTrue(stages.containsAll(listOf("00_input","01_preemph","03_specsub_deemph","04_eq","05_compressor","06_normalized","07_ml_postfilter","08_final")))
         println("STAGE_DUMP stages=${stages.size} samples=${audio.size} warning=${result.warning}")
+    }
+
+    /** IEEE float WAV for diagnostics only. Production export stays 16-bit PCM. */
+    private fun writeFloatWav(file: File, samples: FloatArray, rate: Int) {
+        val buf=java.nio.ByteBuffer.allocate(44+samples.size*4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        fun tag(x:String) { buf.put(x.toByteArray(Charsets.US_ASCII)) }
+        tag("RIFF"); buf.putInt(36+samples.size*4); tag("WAVE"); tag("fmt "); buf.putInt(16)
+        buf.putShort(3); buf.putShort(1); buf.putInt(rate); buf.putInt(rate*4); buf.putShort(4); buf.putShort(32)
+        tag("data"); buf.putInt(samples.size*4); samples.forEach { buf.putFloat(it) }; file.writeBytes(buf.array())
+    }
+
+    @Test fun floatWriterPreservesOutOfRangeSamples() {
+        val samples=floatArrayOf(-2f,-1f,0f,1f,2f)
+        val file=File("build/stage_dumps/float_writer_test.wav"); file.parentFile.mkdirs()
+        writeFloatWav(file,samples,16000)
+        val b=java.nio.ByteBuffer.wrap(file.readBytes()).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        org.junit.Assert.assertEquals(3,b.getShort(20).toInt())
+        org.junit.Assert.assertEquals(32,b.getShort(34).toInt())
+        for(i in samples.indices) org.junit.Assert.assertEquals(samples[i],b.getFloat(44+i*4),0f)
     }
 }

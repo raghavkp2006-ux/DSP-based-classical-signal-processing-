@@ -47,3 +47,10 @@ Branch: `main`
 - `gradlew.bat test assembleRelease`: 34/34 debug and 34/34 release with the optional cafe excerpt test enabled. Raw evidence and reproducible collection scripts are committed; private recordings are not.
 - Signed APK installed successfully on the connected OnePlus 13R and cold launch succeeded; installed APK SHA-256 matches the tested build. Device listening and processing of the updated build remain pending. Intelligibility gain and echo removal: not measured.
 - See RELEASE_NOTES_EQ_ALIGNMENT.md for reproduction commands, limits, headroom values and signature/hash evidence. This follow-up does not complete phases 1–7 of the original finish-up request.
+
+## Full-recording memory fix — 2026-10-28
+
+- Diagnosed phone crashes as OutOfMemoryError at the 256 MiB heap limit. Removed boxed per-sample energy allocations and bounded ONNX working spectra with context-preserving chunks; original whole-clip method retained for parity checks.
+- 36/36 debug and 36/36 release tests passed under a 256 MiB JVM heap, including the complete 60.7-second cafe input. Chunked/whole ML maximum difference 0.0 in 16/44.1/48 kHz parity tests; no tolerance changes.
+- Signed replacement installed; the actual original MP3 decoded and completed enhancement on the OnePlus 13R, Full adaptive, same process alive. Device processing is now checked for this file. Post-run Java heap allocation ~25 MB is a snapshot, not a peak measurement.
+- See RELEASE_NOTES_MEMORY_FIX.md. Echo removal and intelligibility gain remain unmeasured; broader release smoke checklist and original finish-up phases remain incomplete.

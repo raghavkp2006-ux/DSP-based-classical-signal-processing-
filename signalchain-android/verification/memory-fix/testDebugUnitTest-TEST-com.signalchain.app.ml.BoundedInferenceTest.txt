@@ -1,0 +1,4 @@
+Bounded parity rate=16000 maxError=0.0
+Bounded parity rate=44100 maxError=0.0
+Bounded parity rate=48000 maxError=0.0
+

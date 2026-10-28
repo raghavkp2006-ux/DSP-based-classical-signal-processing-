@@ -37,7 +37,7 @@ class ClarityComparisonTest {
             WavWriter.write(File(out, "02_${name}_eq.wav").path, eq, fs)
             val comp = Compressor.compress(eq, fs, p.compressionRatio, p.compressionMakeupDb)
             var final = Compressor.normalizeAndLimit(comp, x).audio
-            if (p.useMlPostfilter) final = OnnxDenoiser(bytes).use { Compressor.normalizeAndLimit(it.apply(final, fs), x).audio }
+            if (p.useMlPostfilter) final = OnnxDenoiser(bytes).use { Compressor.normalizeAndLimit(it.applyBounded(final, fs), x).audio }
             assertEquals(x.size, final.size)
             assertTrue(final.all { it.isFinite() && abs(it) <= 1f })
             WavWriter.write(File(out, "03_${name}_final.wav").path, final, fs)

@@ -114,6 +114,29 @@ class OnnxDenoiser private constructor(modelBytes: ByteArray, @Suppress("UNUSED_
         return resampleLinear(denoised16k, 16_000, sampleRate)
     }
 
+    /** Bounded working set, preserving the model's four-frame temporal receptive radius.
+     * Resample once globally; chunk starts/halos align to the STFT hop. The 1024-sample
+     * halo includes the CNN context (4*128) plus analysis/synthesis window support.
+     * Only valid interior samples are copied, so artificial chunk edges are discarded.
+     */
+    fun applyBounded(audio: FloatArray, sampleRate: Int): FloatArray {
+        val input = resampleLinear(audio, sampleRate, 16000)
+        val output = FloatArray(input.size)
+        val block = 16384
+        val halo = 1024
+        var start = 0
+        while (start < input.size) {
+            val end = min(input.size, start + block)
+            val lo = max(0, start - halo)
+            val hi = min(input.size, end + halo)
+            val processed = apply(input.copyOfRange(lo, hi), 16000)
+            processed.copyInto(output, start, start - lo, end - lo)
+            start = end
+        }
+        val restored = resampleLinear(output, 16000, sampleRate)
+        return restored.copyOf(audio.size)
+    }
+
     override fun close() {
         session.close()
         env.close()

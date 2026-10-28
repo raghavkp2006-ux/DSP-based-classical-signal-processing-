@@ -41,7 +41,7 @@ class RunPipeline(private val context: Context) {
         if (d.params.useMlPostfilter) {
             val postFilter = MlPostFilter.applyOrFallback(normalized) {
                 Compressor.normalizeAndLimit(
-                    OnnxDenoiser(context).use { it.apply(normalized.audio, raw.sampleRate) }, x
+                    OnnxDenoiser(context).use { it.applyBounded(normalized.audio, raw.sampleRate) }, x
                 )
             }
             normalized = postFilter.value

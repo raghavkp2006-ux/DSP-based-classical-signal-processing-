@@ -57,3 +57,4 @@ Branch: `main`
 
 - Phase 1A pre-refactor snapshot: current aligned-EQ and bounded-ML inline chain captured for Light touch and Full adaptive. Debug/release targeted tests each passed 1/1 on 2026-10-28; ONNX fallback warning is asserted absent. Extraction and the rest of Phase 1 remain outstanding.
 - Phase 1A extraction: PipelineCore preserves the pre-extraction SHA-256 snapshots in debug and release; agent parity, stage dumps and diagnostics remain outstanding.
+- Classical DSP snapshot added: debug/release targeted tests passed; analyzer asserts stationary noise and SNR 5–15 dB. Phase 1B investigation found Python eq_gain=0.5 and Kotlin eqGain=0.6 for Classical DSP; parity is not yet green.

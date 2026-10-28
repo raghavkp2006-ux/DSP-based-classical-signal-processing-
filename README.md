@@ -118,3 +118,5 @@ That asset path is already present in the current checkout.
 - iOS support is out of scope.
 
 The Python scripts and stored evaluation artifacts are useful for retraining and further investigation, but they do not change the fact that the shipping product is the Android app.
+
+The previously stored Python ablation results used the legacy causal EQ. The newer [Kotlin evaluation](ablation_output/KOTLIN_EVAL.md) also reports aligned-EQ Python and Kotlin arms; these comparisons do not establish perceptual quality.

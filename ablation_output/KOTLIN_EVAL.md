@@ -33,3 +33,16 @@ These proxies are descriptive; no perceptual or pass/fail threshold is implied. 
 Mode mismatches: 0 of 40; see kotlin_routing.csv for per-file analysis.
 
 Aligned musical ratio exceeds Python in 11 of 40 conditions; the largest difference is +0.2152 at holdout_00_7976-110124-0013, bursty, 15 dB (Python 2.7889, legacy 3.0040, aligned 3.0040). Both Kotlin arms agree there, so EQ alignment does not explain this case. Upstream DSP and normalization differences are possible contributors, but the first divergent stage has not been identified; this is a diagnosis to investigate, not a confirmed cause.
+
+## Python aligned-EQ arm
+
+Same 40 conditions; both Python outputs are exported PCM and scored with `self_eval.evaluate`. The legacy arm remains the default for reproducibility.
+
+| SNR | n | Python legacy | Python aligned | Aligned minus legacy |
+|---|---:|---:|---:|---:|
+| -5 | 8 | 0.7106 | 0.7453 | +0.0348 |
+| 0 | 8 | 0.7838 | 0.8248 | +0.0410 |
+| 5 | 8 | 0.8572 | 0.8872 | +0.0301 |
+| 10 | 8 | 0.9039 | 0.9284 | +0.0245 |
+| 15 | 8 | 0.9336 | 0.9486 | +0.0150 |
+| all | 40 | 0.8378 | 0.8669 | +0.0291 |

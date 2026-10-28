@@ -247,6 +247,31 @@ def apply_eq(audio, Fs, eq_gain=1.0):
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 9: Dynamic range compression
 # ─────────────────────────────────────────────────────────────────────────
+def apply_eq_aligned(audio, Fs, eq_gain=1.0):
+    """Offline group-delay compensated EQ; legacy apply_eq remains the default."""
+    x = np.asarray(audio, dtype=float)
+    if eq_gain <= 0.0:
+        return x.copy()
+    nyquist = Fs / 2.0
+    def taps(base):
+        n = int(np.floor(base * Fs / 16000.0 + 0.5))
+        return n if n % 2 else n + 1
+    def centered(y, coeff):
+        full = signal.convolve(y, coeff, mode="full")
+        offset = (len(coeff)-1)//2
+        return full[offset:offset+len(y)]
+    out = x.copy()
+    for low, high, boost in ((300.0, 500.0, 0.6), (1000.0, 2500.0, 0.9), (2500.0, 4000.0, 0.4)):
+        lo, hi = low/nyquist, min(high/nyquist, 0.99)
+        if lo >= 0.99 or lo >= hi or (low == 300.0 and high/nyquist >= 1.0):
+            continue
+        out = out + eq_gain*boost*centered(out, signal.firwin(taps(65), [lo,hi], pass_zero=False))
+    out = centered(out, signal.firwin(taps(129), 80.0/nyquist, pass_zero=False))
+    if 8000.0/nyquist < 0.99:
+        out = centered(out, signal.firwin(taps(65), min(8000.0/nyquist,0.99)))
+    return out
+
+
 def dynamic_range_compress(audio, Fs, threshold_db=-24.0, ratio=2.5,
                             attack_ms=10.0, release_ms=120.0, makeup_gain_db=20.0):
     """Dynamic range compression. ratio=1.0 + makeup_gain_db=0 = pass-through."""
@@ -364,7 +389,7 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
                  pre_emph_coeff=0.97, alpha=1.2, beta=0.10, gain_smooth=0.7,
                  clean_reference=None, feedback_enabled=True,
                  feedback_stoi_threshold=0.80, feedback_snr_threshold=3.0,
-                 use_stt_feedback=False, eval_is_speech=None, eval_snr_before=None):
+                 use_stt_feedback=False, eval_is_speech=None, eval_snr_before=None, aligned_eq=False):
     """
     Runs all 10 stages end to end and returns a metrics dict plus the
     intermediate arrays the web UI / evaluation scripts need. Writes the
@@ -446,9 +471,9 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
     stage_log.append({"stage": "De-emphasis", "detail": "inverse pre-emphasis"})
 
     _eq_gain = defaults["eq_gain"] if defaults["use_eq"] else 0.0
-    audio_eq = apply_eq(audio_deemph, Fs, eq_gain=_eq_gain)
+    audio_eq = (apply_eq_aligned if aligned_eq else apply_eq)(audio_deemph, Fs, eq_gain=_eq_gain)
     stage_log.append({"stage": "Voice-band EQ",
-                       "detail": f"eq_gain={_eq_gain:.2f}" + (" (bypassed)" if _eq_gain <= 0.0 else "")})
+                       "detail": f"eq_gain={_eq_gain:.2f}" + (" (bypassed)" if _eq_gain <= 0.0 else "") + (" (aligned)" if aligned_eq else " (legacy)")})
 
     _ratio = defaults["compression_ratio"]
     _makeup = defaults["compression_makeup_db"]

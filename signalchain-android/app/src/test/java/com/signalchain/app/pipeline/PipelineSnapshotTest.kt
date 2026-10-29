@@ -12,7 +12,7 @@ import java.nio.ByteOrder
 import java.security.MessageDigest
 import kotlin.math.sin
 
-/** Captures the exact inline production chain before extraction. */
+/** Detects unintended changes in current production pipeline output. */
 class PipelineSnapshotTest {
     @Test fun capture() {
         val fs=16000
@@ -32,7 +32,7 @@ class PipelineSnapshotTest {
             val buf=ByteBuffer.allocate(result.enhancedSamples.size*4).order(ByteOrder.LITTLE_ENDIAN)
             result.enhancedSamples.forEach{buf.putFloat(it)}
             val hash=MessageDigest.getInstance("SHA-256").digest(buf.array()).joinToString(""){"%02x".format(it)}
-            assertEquals(when(name) { "steady" -> "217034ad62d7d8771eb5607cefa8cad41733a9eaee7d0a512d266c325d73b21d"; "classical" -> "e4642a25efec66eb481a43f27843345987042ecdcff816d367a4ad2918c2fbbd"; else -> "4b16540a4d2eb8025afc5265de1c2e06ff278b808770f0c021615fa739e72db7" }, hash)
+            assertEquals(when(name) { "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"; "classical" -> "410b3e02ef9b9d0e55ccb84ef7d45c4b136d2fce31fda1130177d8384be535f6"; else -> "6e7675bdb73fc47d0f9e59d1620405b597e6fba584a03f35562bb039ad953239" }, hash)
             println("SNAPSHOT $name mode=${result.mode} hash=$hash")
         }
     }

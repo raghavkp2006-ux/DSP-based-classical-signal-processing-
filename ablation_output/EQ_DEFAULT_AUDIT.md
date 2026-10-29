@@ -9,3 +9,5 @@ Current selection points:
 - Both agents may set `use_eq=false` / `useEq=false`, notably in Light touch, in which case either EQ choice is bypassed. Default non-agent parameters enable EQ with gain 1.0; agent decisions choose gain and whether it is active.
 
 All subsequent evaluation tables identify actual EQ arm and mark Kotlin aligned as the current production app configuration; this is not the v1.0.0 EQ configuration.
+
+Update: commit `525fb42` fixes the Python feedback retry to forward `aligned_eq`. Feedback-disabled evaluations do not enter the retry and are unaffected by that fix.

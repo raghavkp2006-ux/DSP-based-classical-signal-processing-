@@ -34,3 +34,7 @@ local.properties
 /ablation_output/postfix_padded/
 /ablation_output/sensitivity_original/
 /ablation_output/sensitivity_padded/
+/ablation_output/stftfix_original/
+/ablation_output/stftfix_padded/
+/ablation_output/stftfix_sensitivity_original/
+/ablation_output/stftfix_sensitivity_padded/

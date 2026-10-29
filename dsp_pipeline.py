@@ -625,6 +625,7 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
             input_filepath, output_filepath, params=next_params, use_agent=False,
             clean_reference=clean_reference, feedback_enabled=False,
             eval_is_speech=eval_is_speech, eval_snr_before=eval_snr_before,
+            aligned_eq=aligned_eq,
         )
 
         retry_scores = None

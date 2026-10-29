@@ -181,14 +181,17 @@ def spectral_subtract_wiener(audio_preemph, fp, noise_psd, N,
     win = fp["win"]
     half_size = fft_size // 2 + 1
 
-    output_spec = np.zeros(N + fft_size)
-    output_weight = np.zeros(N + fft_size)
+    pad = frame_len
+    padded_audio = np.pad(np.asarray(audio_preemph[:N]), (pad, pad + hop_len))
+    num_frames = int(np.ceil((N + pad) / hop_len)) + 1
+    output_spec = np.zeros(padded_audio.size + fft_size)
+    output_weight = np.zeros_like(output_spec)
     prev_gain = np.ones(half_size)
     win_padded = np.concatenate([win, np.zeros(fft_size - frame_len)])
 
     for i in range(num_frames):
         idx = i * hop_len
-        frame = audio_preemph[idx: idx + frame_len] * win
+        frame = padded_audio[idx: idx + frame_len] * win
         padded = np.concatenate([frame, np.zeros(fft_size - frame_len)])
         S_half = np.fft.rfft(padded, fft_size)
 
@@ -214,7 +217,8 @@ def spectral_subtract_wiener(audio_preemph, fp, noise_psd, N,
         output_spec[out_idx] += frame_out * win_padded
         output_weight[out_idx] += win_padded ** 2
 
-    return output_spec[:N] / (output_weight[:N] + 1e-10)
+    region = slice(pad, pad + N)
+    return output_spec[region] / np.maximum(output_weight[region], 1e-6)
 
 
 # ─────────────────────────────────────────────────────────────────────────

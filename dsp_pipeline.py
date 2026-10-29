@@ -88,6 +88,17 @@ def frame_params(N, Fs, frame_duration=0.025, hop_duration=0.010):
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 4: Voice Activity Detection
 # ─────────────────────────────────────────────────────────────────────────
+def apply_vad_hangover(speech, hangover_frames):
+    """Extend each original speech frame by at most hangover_frames."""
+    source = np.asarray(speech, dtype=bool)
+    result = source.copy()
+    for offset in range(1, max(0, int(hangover_frames)) + 1):
+        if offset >= len(source):
+            break
+        result[offset:] |= source[:-offset]
+    return result
+
+
 def voice_activity_detection(audio_preemph, fp, hangover_frames=0):
     frame_len, hop_len, num_frames = fp["frame_len"], fp["hop_len"], fp["num_frames"]
     frame_energy = np.zeros(num_frames)
@@ -114,9 +125,7 @@ def voice_activity_detection(audio_preemph, fp, hangover_frames=0):
         is_speech[:] = True
         is_speech[sorted_idx[: int(round(num_frames * 0.20))]] = False
 
-    if hangover_frames:
-        for offset in range(1, int(hangover_frames) + 1):
-            is_speech[offset:] |= is_speech[:-offset]
+    is_speech = apply_vad_hangover(is_speech, hangover_frames)
 
     return is_speech, frame_energy, frame_zcr
 

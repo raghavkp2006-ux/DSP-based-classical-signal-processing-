@@ -40,3 +40,5 @@ local.properties
 /ablation_output/stftfix_sensitivity_padded/
 /ablation_output/model_audit/
 /ablation_output/classical_ablation/
+/ablation_output/v11_downstream/
+/ablation_output/v11_classical_original/

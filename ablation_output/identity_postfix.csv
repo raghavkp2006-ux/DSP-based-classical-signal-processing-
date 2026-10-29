@@ -1,0 +1,3 @@
+dataset,file,arm,lag,sisdr
+original,holdout_00_7976-110124-0013_white_-05dB.wav,python,0,71.79810383732159
+padded,holdout_00_7976-110124-0013_white_-05dB.wav,python,0,76.34863253870236

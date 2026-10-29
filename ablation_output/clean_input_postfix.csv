@@ -1,0 +1,9 @@
+dataset,file,arm,mode,lag,sisdr
+original,holdout_00_7976-110124-0013.wav,python_legacy,Light touch,0,68.67060965732246
+original,holdout_00_7976-110124-0013.wav,kotlin_aligned_production,see Kotlin test log,0,68.45386928939985
+original,holdout_01_8842-302196-0003.wav,python_legacy,Light touch,0,66.78229120022478
+original,holdout_01_8842-302196-0003.wav,kotlin_aligned_production,see Kotlin test log,0,66.60575184557865
+padded,holdout_00_7976-110124-0013.wav,python_legacy,Light touch,0,68.38311082907902
+padded,holdout_00_7976-110124-0013.wav,kotlin_aligned_production,see Kotlin test log,0,68.45364144296609
+padded,holdout_01_8842-302196-0003.wav,python_legacy,Light touch,0,66.49962882521531
+padded,holdout_01_8842-302196-0003.wav,kotlin_aligned_production,see Kotlin test log,0,66.60484922734854

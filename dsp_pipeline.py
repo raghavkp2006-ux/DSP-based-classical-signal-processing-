@@ -163,6 +163,10 @@ def estimate_noise_psd(audio_preemph, fp, is_speech):
 def spectral_subtract_wiener(audio_preemph, fp, noise_psd, N,
                               alpha=1.2, beta=0.10, gain_smooth=0.7,
                               use_spectral_subtraction=True):
+    if not use_spectral_subtraction:
+        if N > len(audio_preemph):
+            raise ValueError("bypass length exceeds input")
+        return np.asarray(audio_preemph[:N]).copy()
     frame_len, hop_len, fft_size, num_frames = (
         fp["frame_len"], fp["hop_len"], fp["fft_size"], fp["num_frames"])
     win = fp["win"]

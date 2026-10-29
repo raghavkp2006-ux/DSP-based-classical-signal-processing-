@@ -41,7 +41,7 @@ class LightTouchFidelityTest {
             val name=line.split(',')[5].replace('\\','/').substringAfterLast('/')
             val raw=WavLoader.load(File(meta.parentFile,"noisy/$name").absolutePath)
             val r=PipelineCore.process(raw.samples,raw.sampleRate,null);assertEquals("Light touch",r.mode)
-            val candidate=Compressor.normalizeAndLimit(raw.samples,raw.samples).audio
+            val candidate=r.enhancedSamples
             WavWriter.write(File(out,name).absolutePath,candidate,raw.sampleRate)
             println("FIDELITY_FILE $name current ${measure(raw.samples,r.enhancedSamples)} candidate ${measure(raw.samples,candidate)}")
             count++

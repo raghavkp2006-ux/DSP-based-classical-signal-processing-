@@ -29,3 +29,8 @@ local.properties
 
 # Locally regenerated padded evaluation dataset
 /ablation_testset_padded/
+# Regenerable evaluation WAVs, VAD traces and per-run metadata
+/ablation_output/postfix_original/
+/ablation_output/postfix_padded/
+/ablation_output/sensitivity_original/
+/ablation_output/sensitivity_padded/

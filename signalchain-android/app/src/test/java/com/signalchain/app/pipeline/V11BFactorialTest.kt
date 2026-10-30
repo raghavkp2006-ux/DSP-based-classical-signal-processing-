@@ -22,9 +22,9 @@ class V11BFactorialTest {
    val spectrum=Fft.rfft(a)
    val filtered=Array(spectrum.size){k->
     val power=spectrum[k].re*spectrum[k].re+spectrum[k].im*spectrum[k].im
-    val clean=if(subtract) max(power-p.alpha*noise[k],p.beta*power) else power
+    val clean=if(subtract) max(power-min(p.alpha,SpectralSubtraction.MAX_OVER_SUBTRACTION_FACTOR)*noise[k],max(p.beta,SpectralSubtraction.MIN_SPECTRAL_SUBTRACTION_GAIN.pow(2))*power) else power
     val post=max(power/(noise[k]+1e-10)-1,0.0)
-    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),.25) else 1.0
+    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),SpectralSubtraction.MIN_WIENER_GAIN) else 1.0
     prev[k]=gain;val mag=sqrt(clean)*gain;val phase=atan2(spectrum[k].im,spectrum[k].re)
     Complex(mag*cos(phase),mag*sin(phase))
    }
@@ -48,6 +48,7 @@ class V11BFactorialTest {
     val filename=records[i][5].replace('\\','/').substringAfterLast('/');val raw=WavLoader.load(File(data,"noisy/$filename").absolutePath);val x=raw.samples;val fs=raw.sampleRate
     val a=AudioAnalyzer.analyze(x,fs);val decision=DecisionAgent.decide(a.snrDb,a.stationaryNoise,a.speechActivityRatio);assertEquals("Classical DSP",decision.mode);val p=decision.params
     val fp=FrameParams.create(x.size,fs);val pre=PreEmphasis.apply(x,p.preEmphCoeff);val vad=Vad.detect(pre,fp,p.vadHangoverFrames);val noise=NoisePsd.estimate(pre,fp,vad.isSpeech)
+    val psdDir=File(root,"ablation_output/v11b_factorial/$ds/psd").also{it.mkdirs()};File(psdDir,File(data,"noisy/$filename").name+".csv").writeText(noise.joinToString("\n"))
     val prod=PipelineCore.process(x,fs,null);assertNull(prod.warning)
     fun down(input:FloatArray):FloatArray {val de=PreEmphasis.deEmphasize(input,p.preEmphCoeff);val eq=Eq.applyAligned(de,fs,if(p.useEq)p.eqGain else 0.0);val comp=Compressor.compress(eq,fs,p.compressionRatio,p.compressionMakeupDb);return Compressor.normalizeAndLimit(comp,x).audio}
     fun export(label:String,y:FloatArray){floatWav(File(root,"ablation_output/v11b_factorial/$ds/$label/$filename"),y,fs)}
@@ -62,7 +63,6 @@ class V11BFactorialTest {
     }
     if(ds=="original"){
      val file=File(root,"ablation_output/v11b_oracle_psd/$filename.csv");val truth=file.readLines().map{it.toFloat()}.toFloatArray();assertEquals(noise.size,truth.size)
-     val od=File(root,"ablation_output/v11b_factorial/original/psd").also{it.mkdirs()};File(od,filename+".csv").writeText(noise.joinToString("\n"))
      for((label,sub) in listOf("oracle_wiener" to false,"oracle_both" to true)){
       val spec=ablate(pre,fp,truth,p,sub,true);export(label+"_on",down(spec));export(label+"_off",PreEmphasis.deEmphasize(spec,p.preEmphCoeff))
      }

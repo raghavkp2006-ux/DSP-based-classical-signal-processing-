@@ -1,0 +1,9 @@
+dataset,file,scale
+original,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,0.7870843770373674
+original,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,0.8701490838739047
+original,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,0.9260769510274941
+original,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,0.9570260347129506
+original,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,0.9753795126929455
+padded,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,0.843650005516937
+padded,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,0.9056022740731967
+padded,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,0.9446503582900915

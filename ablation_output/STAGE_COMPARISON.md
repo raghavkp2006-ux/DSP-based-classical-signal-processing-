@@ -18,3 +18,17 @@ Python's `spectral_subtract_wiener` applies a smoothed adaptive Wiener gain with
 No algorithm fix was applied. The measured hangover behavior warrants a targeted parity correction and regression tests, but any resulting signal-quality effects need evaluation before changing the shipped DSP.
 
 Reproduce: set SIGNALCHAIN_ABLATION_METADATA to the absolute metadata path, run `gradlew.bat testDebugUnitTest --tests *StageComparisonExportTest*`, then `python compare_pipeline_stages.py`. Stage WAVs remain local and ignored.
+
+## Fixed-length hangover correction
+
+The intended hangover uses only the original VAD decisions: each originally detected speech frame marks itself and the next `hangover_frames` frames as speech, clipped at the end of the signal. Overlapping extensions combine, but frames marked only by an extension do not start another extension. Zero hangover leaves the original decisions unchanged. Both implementations now use an unchanged copy of the original decisions; previously Kotlin propagated within an ascending loop, and Python's successive slice operations also extended from earlier modified slices (its five offsets could extend farther than five frames).
+
+The reference tests cover isolated and overlapping detections, termination, and zero hangover; both language tests passed. These three inputs were exported again with legacy EQ. SI-SDR is full-file, unaligned and clean referenced; the pre-fix Kotlin figures use PCM WAVs, while the post-fix Kotlin figures use float final-stage WAVs, so tiny quantization differences are possible. STOI is rounded to four decimals per file.
+
+| Condition | VAD mismatch before → after / 298 | Python SI-SDR before → after (dB) | Kotlin SI-SDR before → after (dB) | Python STOI before → after | Kotlin STOI before → after |
+|---|---:|---:|---:|---:|---:|
+| white +5 | 218 → 0 | -35.817 → -34.901 | -50.595 → -34.901 | .8206 → .8150 | .8544 → .8153 |
+| white +10 | 134 → 0 | -27.536 → -27.146 | -29.800 → -27.145 | .8747 → .8629 | .8919 → .8628 |
+| tonal +5 | 199 → 0 | -24.581 → -24.759 | -20.313 → -24.758 | .8281 → .8177 | .8583 → .8178 |
+
+**Quality side effect:** STOI falls on all three files in both implementations, including decreases of 0.0291–0.0405 in Kotlin. This is not evidence about all material, but it is a material change in these examples. The full-file SI-SDR values remain affected by the edge behavior noted in ALIGNMENT_CHECK.md. Before proceeding, the owner should decide whether to retain this specified fixed-length behavior despite the observed quality change. The Classical decision rationale explicitly specifies spectral subtraction plus Wiener filtering; both implementations still apply the adaptive Wiener gain in the enabled path, and it was not removed.

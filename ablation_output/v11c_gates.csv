@@ -1,0 +1,6 @@
+gate,result,measurement
+G1,PASS,original median PSD/oracle ratio 1.0999x <= 2.5x
+G2,PASS,mean STOI delta original +0.00560 >= -0.010; padded +0.00226 >= -0.005
+G3,PASS,all >=+10 dB output changes vs baseline nonnegative; minimum +0.00432
+G4,FAIL,"identity min SI-SDR PCM16 71.60 dB; full JVM suite 61 tests, 4 failures, 3 skipped"
+G5,PASS,ESTOI delta baseline-to-after +0.07984 original and +0.01105 padded

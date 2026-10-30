@@ -33,10 +33,16 @@ object Vad {
             java.util.Arrays.fill(speech, true)
             energy.indices.sortedBy { energy[it] }.take(round(fp.numFrames * 0.2).toInt()).forEach { speech[it] = false }
         }
-        for (offset in 1..hangover) {
-            for (i in offset until speech.size) speech[i] = speech[i] || speech[i - offset]
+        return VadResult(applyHangover(speech, hangover), energy, zcr)
+    }
+
+    internal fun applyHangover(speech: BooleanArray, hangover: Int): BooleanArray {
+        val result = speech.copyOf()
+        for (offset in 1..hangover.coerceAtLeast(0)) {
+            if (offset >= speech.size) break
+            for (i in offset until speech.size) result[i] = result[i] || speech[i - offset]
         }
-        return VadResult(speech, energy, zcr)
+        return result
     }
 
     fun detectSpeechFrames(x: FloatArray, sampleRate: Int) = detect(x, FrameParams.create(x.size, sampleRate)).isSpeech

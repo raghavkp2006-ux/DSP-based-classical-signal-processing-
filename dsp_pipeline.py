@@ -88,6 +88,17 @@ def frame_params(N, Fs, frame_duration=0.025, hop_duration=0.010):
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 4: Voice Activity Detection
 # ─────────────────────────────────────────────────────────────────────────
+def apply_vad_hangover(speech, hangover_frames):
+    """Extend each original speech frame by at most hangover_frames."""
+    source = np.asarray(speech, dtype=bool)
+    result = source.copy()
+    for offset in range(1, max(0, int(hangover_frames)) + 1):
+        if offset >= len(source):
+            break
+        result[offset:] |= source[:-offset]
+    return result
+
+
 def voice_activity_detection(audio_preemph, fp, hangover_frames=0):
     frame_len, hop_len, num_frames = fp["frame_len"], fp["hop_len"], fp["num_frames"]
     frame_energy = np.zeros(num_frames)
@@ -114,9 +125,7 @@ def voice_activity_detection(audio_preemph, fp, hangover_frames=0):
         is_speech[:] = True
         is_speech[sorted_idx[: int(round(num_frames * 0.20))]] = False
 
-    if hangover_frames:
-        for offset in range(1, int(hangover_frames) + 1):
-            is_speech[offset:] |= is_speech[:-offset]
+    is_speech = apply_vad_hangover(is_speech, hangover_frames)
 
     return is_speech, frame_energy, frame_zcr
 
@@ -163,19 +172,26 @@ def estimate_noise_psd(audio_preemph, fp, is_speech):
 def spectral_subtract_wiener(audio_preemph, fp, noise_psd, N,
                               alpha=1.2, beta=0.10, gain_smooth=0.7,
                               use_spectral_subtraction=True):
+    if not use_spectral_subtraction:
+        if N > len(audio_preemph):
+            raise ValueError("bypass length exceeds input")
+        return np.asarray(audio_preemph[:N]).copy()
     frame_len, hop_len, fft_size, num_frames = (
         fp["frame_len"], fp["hop_len"], fp["fft_size"], fp["num_frames"])
     win = fp["win"]
     half_size = fft_size // 2 + 1
 
-    output_spec = np.zeros(N + fft_size)
-    output_weight = np.zeros(N + fft_size)
+    pad = frame_len
+    padded_audio = np.pad(np.asarray(audio_preemph[:N]), (pad, pad + hop_len))
+    num_frames = int(np.ceil((N + pad) / hop_len)) + 1
+    output_spec = np.zeros(padded_audio.size + fft_size)
+    output_weight = np.zeros_like(output_spec)
     prev_gain = np.ones(half_size)
     win_padded = np.concatenate([win, np.zeros(fft_size - frame_len)])
 
     for i in range(num_frames):
         idx = i * hop_len
-        frame = audio_preemph[idx: idx + frame_len] * win
+        frame = padded_audio[idx: idx + frame_len] * win
         padded = np.concatenate([frame, np.zeros(fft_size - frame_len)])
         S_half = np.fft.rfft(padded, fft_size)
 
@@ -201,7 +217,8 @@ def spectral_subtract_wiener(audio_preemph, fp, noise_psd, N,
         output_spec[out_idx] += frame_out * win_padded
         output_weight[out_idx] += win_padded ** 2
 
-    return output_spec[:N] / (output_weight[:N] + 1e-10)
+    region = slice(pad, pad + N)
+    return output_spec[region] / np.maximum(output_weight[region], 1e-6)
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -608,6 +625,7 @@ def run_pipeline(input_filepath, output_filepath, params=None, use_agent=True,
             input_filepath, output_filepath, params=next_params, use_agent=False,
             clean_reference=clean_reference, feedback_enabled=False,
             eval_is_speech=eval_is_speech, eval_snr_before=eval_snr_before,
+            aligned_eq=aligned_eq,
         )
 
         retry_scores = None

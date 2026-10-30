@@ -1,0 +1,17 @@
+dataset,file,mode,arm,lag,full_sisdr,lag_aligned_sisdr
+original,holdout_00_7976-110124-0013.wav,classical,Python legacy EQ,64,-16.513952157773733,11.63964536553827
+original,holdout_00_7976-110124-0013.wav,classical,Kotlin aligned EQ (production),0,17.205976663701033,17.205976663701033
+original,holdout_00_7976-110124-0013.wav,full,Python legacy EQ,64,-19.44934343398765,5.173368422142071
+original,holdout_00_7976-110124-0013.wav,full,Kotlin aligned EQ (production),0,13.42202703888466,13.42202703888466
+original,holdout_01_8842-302196-0003.wav,classical,Python legacy EQ,64,-9.237013192968162,6.655237476030664
+original,holdout_01_8842-302196-0003.wav,classical,Kotlin aligned EQ (production),0,7.262371013487537,7.262371013487537
+original,holdout_01_8842-302196-0003.wav,full,Python legacy EQ,64,-11.192353828966095,2.346138814798055
+original,holdout_01_8842-302196-0003.wav,full,Kotlin aligned EQ (production),0,4.842641867337612,4.842641867337612
+padded,holdout_00_7976-110124-0013.wav,classical,Python legacy EQ,64,-16.762307018399746,11.006754007578541
+padded,holdout_00_7976-110124-0013.wav,classical,Kotlin aligned EQ (production),0,16.208558128769532,16.208558128769532
+padded,holdout_00_7976-110124-0013.wav,full,Python legacy EQ,64,-19.938793482346366,4.79782108919885
+padded,holdout_00_7976-110124-0013.wav,full,Kotlin aligned EQ (production),0,11.99496029097974,11.99496029097974
+padded,holdout_01_8842-302196-0003.wav,classical,Python legacy EQ,64,-8.369460393939642,6.939231469110249
+padded,holdout_01_8842-302196-0003.wav,classical,Kotlin aligned EQ (production),0,7.138935241598779,7.138935241598779
+padded,holdout_01_8842-302196-0003.wav,full,Python legacy EQ,64,-9.39740828164622,3.1073884591422734
+padded,holdout_01_8842-302196-0003.wav,full,Kotlin aligned EQ (production),0,4.170242095659512,4.170242095659512

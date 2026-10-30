@@ -1,0 +1,241 @@
+dataset,file,mode,arm,before,after
+original,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Python legacy EQ,0.6683,0.6683
+original,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6686,0.6686
+original,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7015,0.7015
+original,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Python legacy EQ,0.7389,0.7389
+original,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7392,0.7392
+original,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7774,0.7774
+original,holdout_00_7976-110124-0013_white_+05dB.wav,Classical DSP,Python legacy EQ,0.8206,0.815
+original,holdout_00_7976-110124-0013_white_+05dB.wav,Classical DSP,Kotlin legacy EQ,0.8544,0.8172
+original,holdout_00_7976-110124-0013_white_+05dB.wav,Classical DSP,Kotlin aligned EQ (production),0.8794,0.844
+original,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Python legacy EQ,0.8747,0.8629
+original,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.8919,0.8644
+original,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9181,0.893
+original,holdout_00_7976-110124-0013_white_+15dB.wav,Light touch,Python legacy EQ,0.9435,0.9521
+original,holdout_00_7976-110124-0013_white_+15dB.wav,Light touch,Kotlin legacy EQ,0.9472,0.9521
+original,holdout_00_7976-110124-0013_white_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9472,0.9521
+original,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Python legacy EQ,0.9242,0.9242
+original,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.9241,0.9241
+original,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9692,0.9692
+original,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Python legacy EQ,0.9264,0.9264
+original,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.9264,0.9264
+original,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9716,0.9716
+original,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Light touch,Python legacy EQ,0.9879,0.9985
+original,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Light touch,Kotlin legacy EQ,0.9879,0.9985
+original,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Light touch,Kotlin aligned EQ (production),0.9879,0.9985
+original,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Python legacy EQ,0.9887,0.9995
+original,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Kotlin legacy EQ,0.9887,0.9995
+original,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Kotlin aligned EQ (production),0.9887,0.9995
+original,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Python legacy EQ,0.9891,0.9998
+original,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Kotlin legacy EQ,0.9891,0.9998
+original,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9891,0.9998
+original,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Python legacy EQ,0.6966,0.6966
+original,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6967,0.6967
+original,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7242,0.7242
+original,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Python legacy EQ,0.76,0.76
+original,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7601,0.7601
+original,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7939,0.7939
+original,holdout_00_7976-110124-0013_tonal_+05dB.wav,Classical DSP,Python legacy EQ,0.8281,0.8177
+original,holdout_00_7976-110124-0013_tonal_+05dB.wav,Classical DSP,Kotlin legacy EQ,0.8583,0.8189
+original,holdout_00_7976-110124-0013_tonal_+05dB.wav,Classical DSP,Kotlin aligned EQ (production),0.8826,0.8416
+original,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Python legacy EQ,0.8785,0.8731
+original,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.8923,0.8738
+original,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9186,0.901
+original,holdout_00_7976-110124-0013_tonal_+15dB.wav,Light touch,Python legacy EQ,0.9399,0.951
+original,holdout_00_7976-110124-0013_tonal_+15dB.wav,Light touch,Kotlin legacy EQ,0.9398,0.9511
+original,holdout_00_7976-110124-0013_tonal_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9398,0.9511
+original,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Python legacy EQ,0.6511,0.6511
+original,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6512,0.6512
+original,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6765,0.6765
+original,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Python legacy EQ,0.7204,0.7204
+original,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7206,0.7206
+original,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7516,0.7516
+original,holdout_00_7976-110124-0013_bursty_+05dB.wav,Classical DSP,Python legacy EQ,0.8038,0.7996
+original,holdout_00_7976-110124-0013_bursty_+05dB.wav,Classical DSP,Kotlin legacy EQ,0.8399,0.8016
+original,holdout_00_7976-110124-0013_bursty_+05dB.wav,Classical DSP,Kotlin aligned EQ (production),0.8633,0.8258
+original,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Python legacy EQ,0.8668,0.8553
+original,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.8817,0.8562
+original,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9074,0.8814
+original,holdout_00_7976-110124-0013_bursty_+15dB.wav,Light touch,Python legacy EQ,0.9336,0.947
+original,holdout_00_7976-110124-0013_bursty_+15dB.wav,Light touch,Kotlin legacy EQ,0.9331,0.947
+original,holdout_00_7976-110124-0013_bursty_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9331,0.947
+original,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Python legacy EQ,0.5943,0.5943
+original,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.5942,0.5942
+original,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6186,0.6186
+original,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Python legacy EQ,0.7274,0.7274
+original,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7275,0.7275
+original,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.763,0.763
+original,holdout_01_8842-302196-0003_white_+05dB.wav,Classical DSP,Python legacy EQ,0.8367,0.837
+original,holdout_01_8842-302196-0003_white_+05dB.wav,Classical DSP,Kotlin legacy EQ,0.8372,0.8375
+original,holdout_01_8842-302196-0003_white_+05dB.wav,Classical DSP,Kotlin aligned EQ (production),0.873,0.8691
+original,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Python legacy EQ,0.8799,0.8771
+original,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9194,0.8771
+original,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9579,0.913
+original,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Python legacy EQ,0.8921,0.8921
+original,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.892,0.892
+original,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.931,0.931
+original,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Full adaptive,Python legacy EQ,0.9101,0.9101
+original,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.91,0.91
+original,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9616,0.9616
+original,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Full adaptive,Python legacy EQ,0.921,0.921
+original,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.921,0.921
+original,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9725,0.9725
+original,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Full adaptive,Python legacy EQ,0.9237,0.9237
+original,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.9236,0.9236
+original,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9742,0.9742
+original,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Python legacy EQ,0.9875,0.9995
+original,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Kotlin legacy EQ,0.9874,0.9995
+original,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Kotlin aligned EQ (production),0.9874,0.9995
+original,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Python legacy EQ,0.9878,0.9999
+original,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Kotlin legacy EQ,0.9877,0.9999
+original,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9877,0.9999
+original,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Python legacy EQ,0.6373,0.6373
+original,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6372,0.6372
+original,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6832,0.6832
+original,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Python legacy EQ,0.7637,0.7644
+original,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7623,0.7645
+original,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.816,0.8154
+original,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Python legacy EQ,0.8345,0.8317
+original,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8678,0.8316
+original,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9163,0.8804
+original,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Python legacy EQ,0.8847,0.8792
+original,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9262,0.8791
+original,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9662,0.9181
+original,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Python legacy EQ,0.8953,0.8953
+original,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.8948,0.8948
+original,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9349,0.9349
+original,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Python legacy EQ,0.6026,0.6026
+original,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6024,0.6024
+original,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6291,0.6291
+original,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Python legacy EQ,0.7124,0.7128
+original,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7097,0.7128
+original,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7567,0.7552
+original,holdout_01_8842-302196-0003_bursty_+05dB.wav,Classical DSP,Python legacy EQ,0.822,0.8182
+original,holdout_01_8842-302196-0003_bursty_+05dB.wav,Classical DSP,Kotlin legacy EQ,0.8549,0.8179
+original,holdout_01_8842-302196-0003_bursty_+05dB.wav,Classical DSP,Kotlin aligned EQ (production),0.8954,0.8592
+original,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Python legacy EQ,0.87,0.8634
+original,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9114,0.8631
+original,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9546,0.9043
+original,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Python legacy EQ,0.8878,0.8878
+original,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.8875,0.8875
+original,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9282,0.9282
+padded,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Python legacy EQ,0.7115,0.7115
+padded,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.7119,0.7119
+padded,holdout_00_7976-110124-0013_white_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7433,0.7433
+padded,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Python legacy EQ,0.7715,0.7715
+padded,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7718,0.7718
+padded,holdout_00_7976-110124-0013_white_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8091,0.8091
+padded,holdout_00_7976-110124-0013_white_+05dB.wav,Full adaptive,Python legacy EQ,0.8241,0.822
+padded,holdout_00_7976-110124-0013_white_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8365,0.8221
+padded,holdout_00_7976-110124-0013_white_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8776,0.8613
+padded,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Python legacy EQ,0.8967,0.8925
+padded,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9051,0.8936
+padded,holdout_00_7976-110124-0013_white_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9291,0.9188
+padded,holdout_00_7976-110124-0013_white_+15dB.wav,Classical DSP,Python legacy EQ,0.9317,0.9293
+padded,holdout_00_7976-110124-0013_white_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.9319,0.9296
+padded,holdout_00_7976-110124-0013_white_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9569,0.9564
+padded,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Python legacy EQ,0.9049,0.9049
+padded,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.9048,0.9048
+padded,holdout_00_7976-110124-0013_brown_hum_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9402,0.9402
+padded,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Python legacy EQ,0.9082,0.9082
+padded,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.9082,0.9082
+padded,holdout_00_7976-110124-0013_brown_hum_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9431,0.9431
+padded,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Full adaptive,Python legacy EQ,0.9114,0.9114
+padded,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.9114,0.9114
+padded,holdout_00_7976-110124-0013_brown_hum_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9461,0.9461
+padded,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Python legacy EQ,0.9734,0.9998
+padded,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Kotlin legacy EQ,0.9734,0.9998
+padded,holdout_00_7976-110124-0013_brown_hum_+10dB.wav,Light touch,Kotlin aligned EQ (production),0.9734,0.9998
+padded,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Python legacy EQ,0.9756,0.9999
+padded,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Kotlin legacy EQ,0.9756,0.9999
+padded,holdout_00_7976-110124-0013_brown_hum_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9756,0.9999
+padded,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Python legacy EQ,0.7228,0.7228
+padded,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.7228,0.7228
+padded,holdout_00_7976-110124-0013_tonal_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7487,0.7487
+padded,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Python legacy EQ,0.7866,0.7866
+padded,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7866,0.7866
+padded,holdout_00_7976-110124-0013_tonal_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8189,0.8189
+padded,holdout_00_7976-110124-0013_tonal_+05dB.wav,Full adaptive,Python legacy EQ,0.8368,0.8337
+padded,holdout_00_7976-110124-0013_tonal_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8531,0.8337
+padded,holdout_00_7976-110124-0013_tonal_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8887,0.8674
+padded,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Python legacy EQ,0.8999,0.8976
+padded,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9062,0.8977
+padded,holdout_00_7976-110124-0013_tonal_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.929,0.9217
+padded,holdout_00_7976-110124-0013_tonal_+15dB.wav,Classical DSP,Python legacy EQ,0.9348,0.9336
+padded,holdout_00_7976-110124-0013_tonal_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.9341,0.9337
+padded,holdout_00_7976-110124-0013_tonal_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9596,0.96
+padded,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Python legacy EQ,0.6728,0.6728
+padded,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6733,0.6733
+padded,holdout_00_7976-110124-0013_bursty_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6937,0.6937
+padded,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Python legacy EQ,0.7494,0.7494
+padded,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7497,0.7497
+padded,holdout_00_7976-110124-0013_bursty_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7772,0.7772
+padded,holdout_00_7976-110124-0013_bursty_+05dB.wav,Full adaptive,Python legacy EQ,0.8093,0.8059
+padded,holdout_00_7976-110124-0013_bursty_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8239,0.8061
+padded,holdout_00_7976-110124-0013_bursty_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8589,0.8395
+padded,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Python legacy EQ,0.8889,0.883
+padded,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.895,0.8842
+padded,holdout_00_7976-110124-0013_bursty_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9181,0.9089
+padded,holdout_00_7976-110124-0013_bursty_+15dB.wav,Classical DSP,Python legacy EQ,0.9269,0.9255
+padded,holdout_00_7976-110124-0013_bursty_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.9254,0.9258
+padded,holdout_00_7976-110124-0013_bursty_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9516,0.9524
+padded,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Python legacy EQ,0.621,0.621
+padded,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.621,0.621
+padded,holdout_01_8842-302196-0003_white_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6631,0.6631
+padded,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Python legacy EQ,0.7468,0.7467
+padded,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7514,0.7467
+padded,holdout_01_8842-302196-0003_white_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8072,0.7993
+padded,holdout_01_8842-302196-0003_white_+05dB.wav,Full adaptive,Python legacy EQ,0.8305,0.829
+padded,holdout_01_8842-302196-0003_white_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8354,0.829
+padded,holdout_01_8842-302196-0003_white_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8986,0.8875
+padded,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Python legacy EQ,0.9033,0.8959
+padded,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.917,0.8963
+padded,holdout_01_8842-302196-0003_white_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9642,0.9421
+padded,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Python legacy EQ,0.9345,0.9261
+padded,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.936,0.9261
+padded,holdout_01_8842-302196-0003_white_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9816,0.9726
+padded,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Light touch,Python legacy EQ,0.985,0.9996
+padded,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Light touch,Kotlin legacy EQ,0.985,0.9996
+padded,holdout_01_8842-302196-0003_brown_hum_-05dB.wav,Light touch,Kotlin aligned EQ (production),0.985,0.9996
+padded,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Light touch,Python legacy EQ,0.9851,0.9999
+padded,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Light touch,Kotlin legacy EQ,0.9851,0.9999
+padded,holdout_01_8842-302196-0003_brown_hum_+00dB.wav,Light touch,Kotlin aligned EQ (production),0.9851,0.9999
+padded,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Light touch,Python legacy EQ,0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Light touch,Kotlin legacy EQ,0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+05dB.wav,Light touch,Kotlin aligned EQ (production),0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Python legacy EQ,0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Kotlin legacy EQ,0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+10dB.wav,Light touch,Kotlin aligned EQ (production),0.9852,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Python legacy EQ,0.9853,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Kotlin legacy EQ,0.9853,1.0
+padded,holdout_01_8842-302196-0003_brown_hum_+15dB.wav,Light touch,Kotlin aligned EQ (production),0.9853,1.0
+padded,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Python legacy EQ,0.6622,0.6622
+padded,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6622,0.6622
+padded,holdout_01_8842-302196-0003_tonal_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7021,0.7021
+padded,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Python legacy EQ,0.7759,0.775
+padded,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7811,0.775
+padded,holdout_01_8842-302196-0003_tonal_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.8347,0.8246
+padded,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Python legacy EQ,0.8523,0.8454
+padded,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8635,0.8454
+padded,holdout_01_8842-302196-0003_tonal_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9263,0.9014
+padded,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Python legacy EQ,0.9113,0.9036
+padded,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9203,0.9036
+padded,holdout_01_8842-302196-0003_tonal_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9676,0.9503
+padded,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Python legacy EQ,0.9358,0.9332
+padded,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.9361,0.9332
+padded,holdout_01_8842-302196-0003_tonal_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9823,0.9794
+padded,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Python legacy EQ,0.6219,0.6219
+padded,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Kotlin legacy EQ,0.6219,0.6219
+padded,holdout_01_8842-302196-0003_bursty_-05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.6507,0.6507
+padded,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Python legacy EQ,0.7448,0.744
+padded,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Kotlin legacy EQ,0.7512,0.744
+padded,holdout_01_8842-302196-0003_bursty_+00dB.wav,Full adaptive,Kotlin aligned EQ (production),0.7999,0.7888
+padded,holdout_01_8842-302196-0003_bursty_+05dB.wav,Full adaptive,Python legacy EQ,0.8348,0.8307
+padded,holdout_01_8842-302196-0003_bursty_+05dB.wav,Full adaptive,Kotlin legacy EQ,0.8462,0.8307
+padded,holdout_01_8842-302196-0003_bursty_+05dB.wav,Full adaptive,Kotlin aligned EQ (production),0.9037,0.8837
+padded,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Python legacy EQ,0.9082,0.9003
+padded,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Kotlin legacy EQ,0.9171,0.9004
+padded,holdout_01_8842-302196-0003_bursty_+10dB.wav,Classical DSP,Kotlin aligned EQ (production),0.9599,0.9429
+padded,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Python legacy EQ,0.9347,0.9311
+padded,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Kotlin legacy EQ,0.936,0.9311
+padded,holdout_01_8842-302196-0003_bursty_+15dB.wav,Classical DSP,Kotlin aligned EQ (production),0.98,0.9753

@@ -23,8 +23,10 @@ for ds in ('original','padded'):
   key=m['file_id']+'_'+m['noise_type']+'_'+({'-5':'-05dB','0':'+00dB','5':'+05dB','10':'+10dB','15':'+15dB'}[str(int(float(m['snr_db'])))] )
   if mode_by_key[key]['mode']!='Classical DSP': continue
   name=Path(m['noisy_path']).name; clean,sr=read(data/'clean'/(m['file_id']+'.wav')); noisy,_=read(data/'noisy'/name)
-  enhanced,_=read(O/'v11b_factorial'/ds/'both_on'/name)
-  est=np.loadtxt(O/'v11b_factorial'/ds/'psd'/(name+'.csv'))
+  enhanced_path=O/'v11c_configs'/ds/'C3'/name if LABEL=='c3' else O/'v11b_factorial'/ds/'both_on'/name
+  psd_path=O/'v11c_configs'/ds/'C3_psd'/(name+'.csv') if LABEL=='c3' else O/'v11b_factorial'/ds/'psd'/(name+'.csv')
+  enhanced,_=read(enhanced_path)
+  est=np.loadtxt(psd_path)
   source_index=int(m['file_id'].split('_')[1]); noise_index=('white','brown_hum','tonal','bursty').index(m['noise_type'])
   active=read_clean(Path(m['source_clean_file']),sr,3.0)
   active_power=np.mean(active**2)

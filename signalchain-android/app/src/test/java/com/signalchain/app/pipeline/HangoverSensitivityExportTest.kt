@@ -27,7 +27,7 @@ class HangoverSensitivityExportTest {
      val y:FloatArray
      if(mult>1 && p.vadHangoverFrames==0) { y=cached!! } else {
       val noise=NoisePsd.estimate(pre,fp,speech)
-      val spectral=SpectralSubtraction.apply(pre,fp,noise,x.size,p.alpha,p.beta,p.gainSmooth,p.useSpectralSubtraction)
+      val spectral=SpectralSubtraction.apply(pre,fp,noise,x.size,p.alpha,p.beta,p.gainSmooth,p.useSpectralSubtraction,useNewLimits=!NoisePsd.useLegacyEstimatorForAbTests)
       val de=PreEmphasis.deEmphasize(spectral,p.preEmphCoeff)
       val eq=Eq.applyAligned(de,fs,if(p.useEq)p.eqGain else 0.0)
       val comp=Compressor.compress(eq,fs,p.compressionRatio,p.compressionMakeupDb)

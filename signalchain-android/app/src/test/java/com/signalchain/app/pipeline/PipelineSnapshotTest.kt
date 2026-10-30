@@ -32,8 +32,37 @@ class PipelineSnapshotTest {
             val buf=ByteBuffer.allocate(result.enhancedSamples.size*4).order(ByteOrder.LITTLE_ENDIAN)
             result.enhancedSamples.forEach{buf.putFloat(it)}
             val hash=MessageDigest.getInstance("SHA-256").digest(buf.array()).joinToString(""){"%02x".format(it)}
-            assertEquals(when(name) { "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"; "classical" -> "410b3e02ef9b9d0e55ccb84ef7d45c4b136d2fce31fda1130177d8384be535f6"; else -> "6e7675bdb73fc47d0f9e59d1620405b597e6fba584a03f35562bb039ad953239" }, hash)
+            assertEquals(when(name) { "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"; "classical" -> "ca4e14fb9a31717b3d1f6415ae15fef28d7daf94be8c0ed53b99842114fefa76"; else -> "29b581f25574f53cad55b7137392057eee7903cb939ed1fbdc1ad4adbe7bad8b" }, hash)
             println("SNAPSHOT $name mode=${result.mode} hash=$hash")
+        }
+    }
+
+    @Test fun legacyEstimatorFlagReuses61ecSnapshots() {
+        val fs=16000
+        NoisePsd.useLegacyEstimatorForAbTests=true
+        try {
+            for (name in listOf("steady", "noisy", "classical")) {
+                val rng=java.util.Random(42)
+                val x=FloatArray(fs*2) { i ->
+                    val gate=if (i in 3200 until 24000) 1.0 else 0.0
+                    if (name=="classical") (0.035*(sin(2*Math.PI*2113*i/fs)+sin(2*Math.PI*3719*i/fs)) + 0.025*sin(2*Math.PI*997*i/fs)*((i/800)%2) + 0.16*sin(2*Math.PI*223*i/fs)*gate).toFloat()
+                    else if (name=="steady") (0.018*sin(2*Math.PI*73*i/fs)+0.16*sin(2*Math.PI*223*i/fs)*gate).toFloat()
+                    else ((sin(2*Math.PI*300*i/fs)*0.3*gate)+rng.nextGaussian()*0.15).toFloat()
+                }
+                val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}
+                val result=PipelineCore.process(x,fs,{OnnxDenoiser(bytes)})
+                val buf=ByteBuffer.allocate(result.enhancedSamples.size*4).order(ByteOrder.LITTLE_ENDIAN)
+                result.enhancedSamples.forEach{buf.putFloat(it)}
+                val hash=MessageDigest.getInstance("SHA-256").digest(buf.array()).joinToString(""){"%02x".format(it)}
+                val expected=when(name) {
+                    "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"
+                    "classical" -> "410b3e02ef9b9d0e55ccb84ef7d45c4b136d2fce31fda1130177d8384be535f6"
+                    else -> "6e7675bdb73fc47d0f9e59d1620405b597e6fba584a03f35562bb039ad953239"
+                }
+                assertEquals("legacy mode leaked new PSD or gain limits for $name",expected,hash)
+            }
+        } finally {
+            NoisePsd.useLegacyEstimatorForAbTests=false
         }
     }
 }

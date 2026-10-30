@@ -45,3 +45,5 @@ local.properties
 /ablation_output/v11b_factorial/
 /ablation_output/v11b_oracle_psd/
 /ablation_output/v11b_counterfactual/
+/ablation_output/v11c_configs/
+/ablation_output/v11c_full_agent/

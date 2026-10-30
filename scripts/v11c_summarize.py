@@ -37,7 +37,7 @@ for di,ds in enumerate(('original','padded')):
   n=min(len(inp),len(out));ref=inp[:n]-np.mean(inp[:n]);est=out[:n]-np.mean(out[:n]);target=ref*np.dot(est,ref)/(np.dot(ref,ref)+1e-20);err=est-target;sisdr=10*np.log10((np.dot(target,target)+1e-30)/(np.dot(err,err)+1e-30))
   identity.append({'dataset':ds,'file':filename,'identity_sisdr_pcm_db':sisdr,'pass_60db':sisdr>=60.0})
 write(O/'v11c_comparison_summary.csv',summary);write(O/'v11c_snr_buckets.csv',snrs);write(O/'v11c_oracle_comparison.csv',oracle_rows);write(O/'v11c_identity_check.csv',identity)
-for x in summary:print(x['dataset'],'STOI Δ',x['after_stoi_delta'],f"CI[{x['after_stoi_delta_ci_low']:.5f},{x['after_stoi_delta_ci_high']:.5f}]",'paired gain',x['paired_gain_stoi'],f"CI[{x['paired_gain_ci_low']:.5f},{x['paired_gain_ci_high']:.5f}]",'ESTOI Δ',x['after_estoi_delta'],'PSD median/mean',x['after_psd_ratio_median'],x['after_psd_ratio_mean'])
+for x in summary:print(x['dataset'],'STOI delta',x['after_stoi_delta'],f"CI[{x['after_stoi_delta_ci_low']:.5f},{x['after_stoi_delta_ci_high']:.5f}]",'paired gain',x['paired_gain_stoi'],f"CI[{x['paired_gain_ci_low']:.5f},{x['paired_gain_ci_high']:.5f}]",'ESTOI delta',x['after_estoi_delta'],'PSD median/mean',x['after_psd_ratio_median'],x['after_psd_ratio_mean'])
 for x in snrs:print('SNR',x)
 print('identity min',min(x['identity_sisdr_pcm_db'] for x in identity),'max',max(x['identity_sisdr_pcm_db'] for x in identity),'fails',sum(not x['pass_60db'] for x in identity))
 print('oracle mean new/oracle',mean(oracle_rows,'new_stoi'),mean(oracle_rows,'oracle_stoi'),'gap',mean(oracle_rows,'new_minus_oracle_stoi'))

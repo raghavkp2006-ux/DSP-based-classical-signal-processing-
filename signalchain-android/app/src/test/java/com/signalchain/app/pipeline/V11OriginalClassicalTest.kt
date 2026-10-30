@@ -20,9 +20,9 @@ class V11OriginalClassicalTest {
    val spectrum=Fft.rfft(a)
    val filtered=Array(spectrum.size){k->
     val power=spectrum[k].re*spectrum[k].re+spectrum[k].im*spectrum[k].im
-    val clean=if(subtract) max(power-p.alpha*noise[k],p.beta*power) else power
+    val clean=if(subtract) max(power-min(p.alpha,SpectralSubtraction.MAX_OVER_SUBTRACTION_FACTOR)*noise[k],max(p.beta,SpectralSubtraction.MIN_SPECTRAL_SUBTRACTION_GAIN.pow(2))*power) else power
     val post=max(power/(noise[k]+1e-10)-1,0.0)
-    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),.25) else 1.0
+    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),SpectralSubtraction.MIN_WIENER_GAIN) else 1.0
     prev[k]=gain;val mag=sqrt(clean)*gain;val phase=atan2(spectrum[k].im,spectrum[k].re)
     Complex(mag*cos(phase),mag*sin(phase))
    }

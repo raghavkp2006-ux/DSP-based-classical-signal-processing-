@@ -30,7 +30,7 @@ object PipelineCore {
         onStage?.invoke("02_vad", FloatArray(v.isSpeech.size) { if(v.isSpeech[it]) 1f else 0f })
         val noise=NoisePsd.estimate(pre,fp,v.isSpeech)
         onStage?.invoke("02_noise_psd", noise)
-        val spectral=SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction,useNewLimits=!NoisePsd.useLegacyEstimatorForAbTests)
+        val spectral=SpectralSubtraction.apply(pre,fp,noise,x.size,d.params.alpha,d.params.beta,d.params.gainSmooth,d.params.useSpectralSubtraction)
         onStage?.invoke("03_spectral", spectral)
         var y=PreEmphasis.deEmphasize(spectral,d.params.preEmphCoeff)
         onStage?.invoke("03_specsub_deemph", y)

@@ -1,17 +1,22 @@
 package com.signalchain.app.pipeline
+import org.junit.experimental.categories.Category
 import com.signalchain.app.agent.*
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
 import com.signalchain.app.ml.OnnxDenoiser
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
+@Category(EvaluationTest::class)
 class V11BCounterfactualTest {
  @Test fun exportLightAndNoHum(){
-  val root=File(System.getenv("SIGNALCHAIN_ROOT") ?: return);val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}
+  val rootValue=System.getenv("SIGNALCHAIN_ROOT")
+        assumeTrue("Requires SIGNALCHAIN_ROOT and local evaluation data", !rootValue.isNullOrBlank())
+        val root=File(rootValue!!);val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}
   val scales=File(root,"ablation_output/v11b_hum_scale.csv").readLines().drop(1).map{it.split(',')}.associate{(it[0]+"/"+it[1]) to it[2].toFloat()}
   for(ds in listOf("original","padded")){
-   val data=File(root,if(ds=="original")"ablation_testset" else "ablation_testset_padded");val records=File(data,"metadata.csv").readLines().drop(1).map{it.split(',')};val modes=File(root,"ablation_output/stftfix_$ds/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
+   val data=File(root,if(ds=="original")"ablation_testset" else "ablation_testset_padded");assumeTrue("Evaluation metadata is absent: $data",File(data,"metadata.csv").isFile);val records=File(data,"metadata.csv").readLines().drop(1).map{it.split(',')};val modes=File(root,"ablation_output/stftfix_$ds/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
    var lightCount=0;var humCount=0
    for(i in records.indices){
     val row=records[i];val filename=row[5].replace('\\','/').substringAfterLast('/');val raw=WavLoader.load(File(data,"noisy/$filename").absolutePath);val x=raw.samples;val fs=raw.sampleRate

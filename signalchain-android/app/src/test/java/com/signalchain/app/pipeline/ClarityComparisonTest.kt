@@ -1,5 +1,5 @@
 package com.signalchain.app.pipeline
-
+import org.junit.experimental.categories.Category
 import com.signalchain.app.agent.*
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
@@ -11,11 +11,13 @@ import java.io.File
 import kotlin.math.abs
 
 /** Opt-in reproduction on a local recording; no private audio is committed. */
+@Category(EvaluationTest::class)
 class ClarityComparisonTest {
     @Test fun exportBeforeAndAfterWithRealModel() {
         val path = System.getenv("SIGNALCHAIN_CLARITY_WAV")
-        assumeTrue(path != null)
-        val raw = WavLoader.load(path!!)
+        assumeTrue("Set SIGNALCHAIN_CLARITY_WAV to run the local recording evaluation", path != null)
+        assumeTrue("Recording file is absent", File(path!!).isFile)
+        val raw = WavLoader.load(path)
         val x = raw.samples
         val fs = raw.sampleRate
         val fp = FrameParams.create(x.size, fs)

@@ -1,14 +1,16 @@
 package com.signalchain.app.pipeline
-
+import org.junit.experimental.categories.Category
 import com.signalchain.app.agent.*
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
 import kotlin.math.*
 
 /** Evaluation-only factorial ablation; production DSP remains unchanged. */
+@Category(EvaluationTest::class)
 class ClassicalStagesAblationTest {
  private fun ablate(x:FloatArray,fp:FrameParams,noise:FloatArray,p:AgentParams,subtract:Boolean,wiener:Boolean):FloatArray {
   if(!subtract && !wiener) return x.copyOf()
@@ -20,9 +22,9 @@ class ClassicalStagesAblationTest {
    val spectrum=Fft.rfft(a)
    val filtered=Array(spectrum.size){k->
     val power=spectrum[k].re*spectrum[k].re+spectrum[k].im*spectrum[k].im
-    val clean=if(subtract) max(power-min(p.alpha,SpectralSubtraction.MAX_OVER_SUBTRACTION_FACTOR)*noise[k],max(p.beta,SpectralSubtraction.MIN_SPECTRAL_SUBTRACTION_GAIN.pow(2))*power) else power
+    val clean=if(subtract) max(power-p.alpha*noise[k],p.beta*power) else power
     val post=max(power/(noise[k]+1e-10)-1,0.0)
-    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),SpectralSubtraction.MIN_WIENER_GAIN) else 1.0
+    val gain=if(wiener) max(p.gainSmooth*prev[k]+(1-p.gainSmooth)*post/(post+1),.25) else 1.0
     prev[k]=gain;val mag=sqrt(clean)*gain;val phase=atan2(spectrum[k].im,spectrum[k].re)
     Complex(mag*cos(phase),mag*sin(phase))
    }
@@ -32,7 +34,9 @@ class ClassicalStagesAblationTest {
   return FloatArray(n){(out[pad+it]/max(weight[pad+it],1e-6)).toFloat()}
  }
  @Test fun exportClassicalFactorial(){
-  val root=File(System.getenv("SIGNALCHAIN_ROOT") ?: return);val data=File(root,"ablation_testset_padded")
+  val rootValue=System.getenv("SIGNALCHAIN_ROOT")
+        assumeTrue("Requires SIGNALCHAIN_ROOT and local evaluation data", !rootValue.isNullOrBlank())
+  val root=File(rootValue!!);val data=File(root,"ablation_testset_padded");assumeTrue("Evaluation metadata is absent: $data",File(data,"metadata.csv").isFile)
   val records=File(data,"metadata.csv").readLines().drop(1).map{it.split(',')}
   val modes=File(root,"ablation_output/stftfix_padded/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
   var count=0

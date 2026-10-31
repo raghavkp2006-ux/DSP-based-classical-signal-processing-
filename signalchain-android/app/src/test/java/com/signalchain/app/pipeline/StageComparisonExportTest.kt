@@ -7,10 +7,11 @@ import org.junit.Test
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-
+import org.junit.experimental.categories.Category
+@Category(EvaluationTest::class)
 class StageComparisonExportTest {
  @Test fun exportClassicalAndLightStages(){
-  val env=System.getenv("SIGNALCHAIN_ABLATION_METADATA"); assumeTrue(!env.isNullOrBlank())
+  val env=System.getenv("SIGNALCHAIN_ABLATION_METADATA"); assumeTrue("Requires SIGNALCHAIN_ABLATION_METADATA and local evaluation data", !env.isNullOrBlank()); assumeTrue("Metadata file is absent",File(env!!).isFile)
   val meta=File(env!!);val root=meta.parentFile.parentFile!!
   val rows=meta.readLines().drop(1).map{it.split(',')};val modes=File(root,"ablation_output/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
   val chosen=modes.indices.filter { modes[it][3]=="Classical DSP" }.take(3)+modes.indices.filter { modes[it][0]=="holdout_00_7976-110124-0013" && modes[it][1]=="bursty" && modes[it][2]=="15" }

@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
+import org.gradle.api.tasks.testing.Test
 
 plugins {
     id("com.android.application")
@@ -118,6 +119,23 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.microsoft.onnxruntime:onnxruntime:1.18.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+// Keep data-dependent measurements discoverable and runnable as a separate suite.
+afterEvaluate {
+    val debugUnitTest = tasks.named<Test>("testDebugUnitTest")
+    tasks.register<Test>("evaluationTest") {
+        group = "verification"
+        description = "Runs opt-in evaluation tests that require local datasets or recordings."
+        testClassesDirs = debugUnitTest.get().testClassesDirs
+        classpath = debugUnitTest.get().classpath
+        useJUnit { includeCategories("com.signalchain.app.pipeline.EvaluationTest") }
+    }
+    tasks.named("test") {
+        group = "verification"
+        description = "Runs the default JVM unit test suite."
+        dependsOn(debugUnitTest)
+    }
 }
 
 // Keep debug as one universal APK with all existing ABIs; release has three

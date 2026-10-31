@@ -1,12 +1,14 @@
 package com.signalchain.app.pipeline
-
+import org.junit.experimental.categories.Category
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
 import kotlin.math.*
 
+@Category(EvaluationTest::class)
 class LightTouchFidelityTest {
     private fun measure(reference:FloatArray,output:FloatArray):String {
         require(reference.size==output.size)
@@ -32,7 +34,9 @@ class LightTouchFidelityTest {
         val file=File("build/light_fidelity/synthetic.wav");file.parentFile!!.mkdirs();WavWriter.write(file.absolutePath,normal,fs)
         val bytes=file.readBytes();val bb=java.nio.ByteBuffer.wrap(bytes,44,bytes.size-44).order(java.nio.ByteOrder.LITTLE_ENDIAN);val pcm=FloatArray(x.size){bb.short/32768f}
         println("FIDELITY pcm16 ${measure(x,pcm)}")
-        val env=System.getenv("SIGNALCHAIN_ABLATION_METADATA") ?: return
+        val env=System.getenv("SIGNALCHAIN_ABLATION_METADATA")
+        assumeTrue("Requires SIGNALCHAIN_ABLATION_METADATA and local evaluation data", !env.isNullOrBlank())
+        assumeTrue("Metadata file is absent", File(env!!).isFile)
         val meta=File(env);val root=meta.parentFile.parentFile!!;val rows=meta.readLines().drop(1)
         val modes=File(root,"ablation_output/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
         val out=File(root,"ablation_output/light_touch_candidate").also{it.mkdirs()};var count=0

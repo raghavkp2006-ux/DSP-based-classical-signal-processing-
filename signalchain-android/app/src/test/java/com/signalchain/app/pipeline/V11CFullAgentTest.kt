@@ -1,13 +1,15 @@
 package com.signalchain.app.pipeline
-
+import org.junit.experimental.categories.Category
 import com.signalchain.app.audio.*
 import com.signalchain.app.ml.OnnxDenoiser
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+@Category(EvaluationTest::class)
 class V11CFullAgentTest {
     private fun writeFloatWav(file:File,x:FloatArray,rate:Int) {
         file.parentFile!!.mkdirs();val b=ByteBuffer.allocate(44+x.size*4).order(ByteOrder.LITTLE_ENDIAN)
@@ -17,22 +19,27 @@ class V11CFullAgentTest {
         file.writeBytes(b.array())
     }
     @Test fun exportFullAgentForBothSets() {
-        val root=File(System.getenv("SIGNALCHAIN_ROOT") ?: return)
+        val rootValue=System.getenv("SIGNALCHAIN_ROOT")
+        assumeTrue("Requires SIGNALCHAIN_ROOT and local evaluation data", !rootValue.isNullOrBlank())
+        val root=File(rootValue!!)
         val model=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}
         for(ds in listOf("original","padded")) {
             val data=File(root,if(ds=="original")"ablation_testset" else "ablation_testset_padded")
+            assumeTrue("Evaluation metadata is absent: $data",File(data,"metadata.csv").isFile)
             val records=File(data,"metadata.csv").readLines().drop(1).map{it.split(',')}
-            val rows=mutableListOf("file_id,noise_type,snr_db,mode,warning")
-            for(line in records) {
-                val name=line[5].replace('\\','/').substringAfterLast('/')
-                val raw=WavLoader.load(File(data,"noisy/$name").absolutePath)
-                val result=PipelineCore.process(raw.samples,raw.sampleRate,{OnnxDenoiser(model)})
-                writeFloatWav(File(root,"ablation_output/v11c_full_agent/$ds/$name"),result.enhancedSamples,raw.sampleRate)
-                rows.add("${line[0]},${line[2]},${line[3]},${result.mode},${result.warning.orEmpty()}")
-                println("V11C_FULL_AGENT $ds ${rows.size-1}/40 $name ${result.mode}")
+            for(config in listOf("C1","C3")) {
+                val rows=mutableListOf("file_id,noise_type,snr_db,mode,warning")
+                for(line in records) {
+                    val name=line[5].replace('\\','/').substringAfterLast('/')
+                    val raw=WavLoader.load(File(data,"noisy/$name").absolutePath)
+                    val result=PipelineCore.process(raw.samples,raw.sampleRate,{OnnxDenoiser(model)})
+                    writeFloatWav(File(root,"ablation_output/v111_full_agent/$ds/$config/$name"),result.enhancedSamples,raw.sampleRate)
+                    rows.add("${line[0]},${line[2]},${line[3]},${result.mode},${result.warning.orEmpty()}")
+                    println("V111_FULL_AGENT $ds $config ${rows.size-1}/40 $name ${result.mode}")
+                }
+                File(root,"ablation_output/v111_full_agent/$ds/$config/modes.csv").also{it.parentFile!!.mkdirs();it.writeText(rows.joinToString("\n"))}
+                assertEquals(41,rows.size)
             }
-            File(root,"ablation_output/v11c_full_agent/$ds/modes.csv").also{it.parentFile!!.mkdirs();it.writeText(rows.joinToString("\n"))}
-            assertEquals(41,rows.size)
         }
     }
 }

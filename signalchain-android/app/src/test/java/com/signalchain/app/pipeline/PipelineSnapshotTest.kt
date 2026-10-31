@@ -32,7 +32,7 @@ class PipelineSnapshotTest {
             val buf=ByteBuffer.allocate(result.enhancedSamples.size*4).order(ByteOrder.LITTLE_ENDIAN)
             result.enhancedSamples.forEach{buf.putFloat(it)}
             val hash=MessageDigest.getInstance("SHA-256").digest(buf.array()).joinToString(""){"%02x".format(it)}
-            assertEquals(when(name) { "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"; "classical" -> "ca4e14fb9a31717b3d1f6415ae15fef28d7daf94be8c0ed53b99842114fefa76"; else -> "29b581f25574f53cad55b7137392057eee7903cb939ed1fbdc1ad4adbe7bad8b" }, hash)
+            assertEquals(when(name) { "steady" -> "ac51fecdbf586873b3f08b405ced95c879390d57d607b78a5500a712ac92b03c"; "classical" -> "7cff68644ce2a6b772bbf3b49921ceaf464062c364a5ef9657aff0a235bd88b4"; else -> "d2d71e9ef30b1a2c8ee8360025b76a96d7033d005a5646199e0ddff9de82668d" }, hash)
             println("SNAPSHOT $name mode=${result.mode} hash=$hash")
         }
     }

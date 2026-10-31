@@ -1,18 +1,24 @@
 package com.signalchain.app.pipeline
+import org.junit.experimental.categories.Category
 import com.signalchain.app.agent.*
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
 import com.signalchain.app.ml.OnnxDenoiser
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.Assert.*
 import java.io.File
 import kotlin.math.abs
+@Category(EvaluationTest::class)
 class PreFixVadExportTest {
  @Test fun export() {
-  val root=File(System.getenv("SIGNALCHAIN_ROOT") ?: return)
+  val rootValue=System.getenv("SIGNALCHAIN_ROOT")
+        assumeTrue("Requires SIGNALCHAIN_ROOT and local evaluation data", !rootValue.isNullOrBlank())
+        val root=File(rootValue!!)
   val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}
   for(ds in listOf("original","padded")) {
    val data=File(root,if(ds=="original")"ablation_testset" else "ablation_testset_padded")
+   assumeTrue("Evaluation metadata is absent: $data",File(data,"metadata.csv").isFile)
    val base=File(root,"ablation_output/sensitivity_$ds").also{it.mkdirs()}
    for((idx,line) in File(data,"metadata.csv").readLines().drop(1).withIndex()) {
     val name=line.split(',')[5].replace('\\','/').substringAfterLast('/');val wav=WavLoader.load(File(data,"noisy/$name").absolutePath);val x=wav.samples;val fs=wav.sampleRate

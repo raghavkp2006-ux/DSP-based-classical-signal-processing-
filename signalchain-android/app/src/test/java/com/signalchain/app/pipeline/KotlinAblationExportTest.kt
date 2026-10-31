@@ -1,5 +1,5 @@
 package com.signalchain.app.pipeline
-
+import org.junit.experimental.categories.Category
 import com.signalchain.app.audio.WavLoader
 import com.signalchain.app.audio.WavWriter
 import com.signalchain.app.ml.OnnxDenoiser
@@ -8,11 +8,12 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
 
+@Category(EvaluationTest::class)
 class KotlinAblationExportTest {
     @Test fun exportAllConditions() {
         val env=System.getenv("SIGNALCHAIN_ABLATION_METADATA")
-        assumeTrue(!env.isNullOrBlank())
-        val metadata=File(env!!); val root=metadata.parentFile.parentFile
+        assumeTrue("Requires SIGNALCHAIN_ABLATION_METADATA and local evaluation data", !env.isNullOrBlank())
+        val metadata=File(env!!); assumeTrue("Metadata file is absent", metadata.isFile); val root=metadata.parentFile.parentFile
         val lines=metadata.readLines().filter { it.isNotBlank() }
         val headers=lines.first().split(','); val records=lines.drop(1)
         assertEquals("Expected 40 conditions",40,records.size)

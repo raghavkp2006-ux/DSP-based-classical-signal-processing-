@@ -3,14 +3,16 @@ import com.signalchain.app.agent.*
 import com.signalchain.app.audio.*
 import com.signalchain.app.dsp.*
 import com.signalchain.app.ml.OnnxDenoiser
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.Assert.*
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.*
-
+import org.junit.experimental.categories.Category
 /** Evaluation-only downstream ablation. Saves float WAVs to avoid PCM clipping. */
+@Category(EvaluationTest::class)
 class V11DownstreamAblationTest {
  data class Flags(val eq:Boolean,val dynamics:Boolean,val limiter:Boolean,val norm:Boolean,val ml:Boolean)
  private fun limitNorm(x:FloatArray,raw:FloatArray,norm:Boolean,limit:Boolean):FloatArray {
@@ -25,7 +27,9 @@ class V11DownstreamAblationTest {
   fun tag(s:String){b.put(s.toByteArray(Charsets.US_ASCII))};tag("RIFF");b.putInt(36+x.size*4);tag("WAVE");tag("fmt ");b.putInt(16);b.putShort(3);b.putShort(1);b.putInt(rate);b.putInt(rate*4);b.putShort(4);b.putShort(32);tag("data");b.putInt(x.size*4);x.forEach{b.putFloat(it)};file.writeBytes(b.array())
  }
  @Test fun exportPaddedDownstream(){
-  val root=File(System.getenv("SIGNALCHAIN_ROOT") ?: return);val data=File(root,"ablation_testset_padded")
+  val rootValue=System.getenv("SIGNALCHAIN_ROOT")
+        assumeTrue("Requires SIGNALCHAIN_ROOT and local evaluation data", !rootValue.isNullOrBlank())
+        val root=File(rootValue!!);val data=File(root,"ablation_testset_padded");assumeTrue("Evaluation metadata is absent: $data",File(data,"metadata.csv").isFile)
   val records=File(data,"metadata.csv").readLines().drop(1).map{it.split(',')}
   val modes=File(root,"ablation_output/stftfix_padded/kotlin/kotlin_modes.csv").readLines().drop(1).map{it.split(',')}
   val bytes=javaClass.classLoader!!.getResourceAsStream("models/spectral_mask_denoiser.onnx")!!.use{it.readBytes()}

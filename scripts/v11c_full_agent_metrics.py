@@ -65,6 +65,12 @@ for di,ds in enumerate(('original','padded')):
    diff=np.array([a[k][metric]-b[k][metric] for k in keys]);lo,hi=bootstrap_ci(diff,3000+di*100+ri*10+{'stoi_delta':0,'estoi_delta':1,'speechband_sisdr_improvement_db':2}[metric]);row['mean_C1_minus_C3_'+metric]=float(diff.mean());row[metric+'_paired_ci_low']=float(lo);row[metric+'_paired_ci_high']=float(hi)
   att1=[a[k]['median_nonspeech_attenuation_db'] for k in keys if np.isfinite(a[k]['median_nonspeech_attenuation_db'])];att3=[b[k]['median_nonspeech_attenuation_db'] for k in keys if np.isfinite(b[k]['median_nonspeech_attenuation_db'])]
   row['C1_median_nonspeech_attenuation_db']=float(np.median(att1)) if att1 else float('nan');row['C3_median_nonspeech_attenuation_db']=float(np.median(att3)) if att3 else float('nan')
+  att_keys=[k for k in keys if np.isfinite(a[k]['median_nonspeech_attenuation_db']) and np.isfinite(b[k]['median_nonspeech_attenuation_db'])]
+  if att_keys:
+   diff=np.array([a[k]['median_nonspeech_attenuation_db']-b[k]['median_nonspeech_attenuation_db'] for k in att_keys]);rng=np.random.default_rng(4000+di*100+ri);ids=rng.integers(0,len(diff),(10000,len(diff)));boot=np.median(diff[ids],axis=1)
+   row['C1_minus_C3_median_nonspeech_level_change_db']=float(np.median(diff));row['nonspeech_level_change_paired_ci_low']=float(np.quantile(boot,.025));row['nonspeech_level_change_paired_ci_high']=float(np.quantile(boot,.975))
+  else:
+   row['C1_minus_C3_median_nonspeech_level_change_db']=float('nan');row['nonspeech_level_change_paired_ci_low']=float('nan');row['nonspeech_level_change_paired_ci_high']=float('nan')
   paired.append(row)
 
 write_csv('v111_full_agent_per_file.csv',per);write_csv('v111_full_agent_summary.csv',summary);write_csv('v111_full_agent_paired_ci.csv',paired)

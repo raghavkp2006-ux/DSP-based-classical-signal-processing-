@@ -4,6 +4,7 @@
 
 - The default estimator is the VAD-independent minimum-statistics tracker: smoothed periodograms, a sliding 1.5-second minimum with bias compensation, and a startup ramp. It returns one static PSD from the final analysis frame for the whole file. The prior VAD-gated estimator remains available for A/B evaluation.
 - Removed the over-subtraction cap, both 0.30 gain floors, and the `useNewLimits` switch. C1 met the requested comparison rule on both sets: its overall STOI delta was within 0.002 of C3 and its median nonspeech attenuation was stronger. Routing, ONNX, and STFT behavior were not changed.
+- Paired C1−C3 STOI difference was −0.00149 (95% CI −0.00209 to −0.00094) original and −0.00045 (CI −0.00073 to −0.00019) padded. Median nonspeech output/noisy level change was 1.31 dB lower with C1 (paired median-difference CI −1.64 to −1.11 dB) original and 1.17 dB lower (CI −1.90 to −1.08 dB) padded, so both conditions in the removal rule passed.
 - Evaluation-only JVM tests are marked with the `EvaluationTest` category and can be run with `:app:evaluationTest`; absent local inputs are reported as JUnit skips via assumptions.
 
 ## Measured results from this branch

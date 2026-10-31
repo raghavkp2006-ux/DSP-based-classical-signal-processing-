@@ -1,4 +1,18 @@
-# PROGRESS — SignalChain v1.1.1 hardening
+# PROGRESS — SignalChain v1.1.1
+
+## v1.1.1 release record
+
+- Source branch commit: `2c96965fdbdbe2280ced4208cb6070490a7f95eb` (`v1.1.1-hardening`).
+- Merge commit and annotated tag target: `e7ebee49b9fbf5913ee64cd45ebb31bdc7b7ef44`.
+- Annotated `v1.1.1` tag object: `7fff488d403170fea905f885be115c9bc5365576`.
+- Debug and release APKs built from `v1.1.1`; `minifyReleaseWithR8` ran successfully.
+- `app-universal-debug.apk` SHA-256: `F6AB6D6E95A5D0C965EAA08A58DA7C7E5917A76E89C3DD99143DD29E485D2DB2`.
+- `app-arm64-v8a-release.apk` SHA-256: `4C87BE3AA5DF9524E95EA98F35D43D036CEC715C3BAFD060BF04BF3C1962FE9E`.
+- `app-armeabi-v7a-release.apk` SHA-256: `12DF1A68CC15FF1021FB0EEEC767484C2FC885FE2FAD40BF86F4B7BD97517010`.
+- `app-x86_64-release.apk` SHA-256: `F1A6E5F4198BEE02C6C99C975D9639A30ABEC485EEE94BEAD5A0A24F4804A32E`.
+- `app-universal-release.apk` SHA-256: `2936F3A1E9DA59F817AF63914942B91C20E5D6F38FCC916FC5C861DF9110C2DE`.
+- device smoke test: pending
+- release signing: pending
 
 ## Implemented on `v1.1.1-hardening`
 
